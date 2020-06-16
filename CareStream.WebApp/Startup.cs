@@ -49,6 +49,7 @@ namespace CareStream.WebApp
             services.AddAuthentication(AzureADB2CDefaults.AuthenticationScheme)
                .AddAzureADB2C(options => Configuration.Bind("AzureAdB2CLogin", options));
 
+            // Update by Venu
             //services.Configure<JwtBearerOptions>(
             //AzureADB2CDefaults.JwtBearerAuthenticationScheme, options =>
             //{
