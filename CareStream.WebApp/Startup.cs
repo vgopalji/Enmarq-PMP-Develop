@@ -131,6 +131,7 @@ namespace CareStream.WebApp
             var schedulerFactory = new StdSchedulerFactory(properties);
             var scheduler = await schedulerFactory.GetScheduler();
             //await scheduler.Start();
+            //update for test
             return scheduler;
         }
 
