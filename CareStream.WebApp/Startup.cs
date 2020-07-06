@@ -86,6 +86,7 @@ namespace CareStream.WebApp
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
@@ -131,6 +132,7 @@ namespace CareStream.WebApp
             var schedulerFactory = new StdSchedulerFactory(properties);
             var scheduler = await schedulerFactory.GetScheduler();
             //await scheduler.Start();
+            //update for test
             return scheduler;
         }
 
