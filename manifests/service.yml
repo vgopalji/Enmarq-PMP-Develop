@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: "kubsersrvc-25c2"
+    labels:
+        app: "kubsersrvc-25c2"
+spec:
+    type: LoadBalancer
+    ports:
+    - port: 4567
+      targetPort: 4567
+      protocol: TCP
+      name: http
+    selector:
+        app: "kubsersrvc-25c2"
