@@ -1,0 +1,16 @@
+apiVersion : apps/v1beta1
+kind: Deployment
+metadata:
+  name: "kubsersrvc-25c2"
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: "kubsersrvc-25c2"
+    spec:
+      containers:
+        - name: "kubsersrvc-25c2"
+          image: "newcontainer4carestream.azurecr.io/kubsersrvc"
+          ports:
+          - containerPort: 4567
