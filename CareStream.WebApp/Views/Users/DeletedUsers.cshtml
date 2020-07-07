@@ -4,10 +4,14 @@
     ViewData["Title"] = "DeletedUsers";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    $(document).ready(function () { unBlockUi(); });
-</script>
+    $(document).ready(function () {
+        unBlockUi();
+        if ('@(Model == null || Model.Users == null || Model.Users.Count <= 0)'=='True')
+            toggleNoDataFound(false);
+    });
+    </script>
 
 <h1>DeletedUsers</h1>
 
@@ -19,42 +23,37 @@
                 <th></th>
                 <th>Name</th>
                 <th>User Name</th>
-                <th>Department</th>
                 <th>Regions</th>
-                <th>User Type</th>
                 <th>Source</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Users)
+            @if (Model != null && Model.Users != null && Model.Users.Count > 0)
             {
-                <tr>
-                    <td>
-                        @*<input type="checkbox" name="chkboxUser-@item.Id" id="chkboxUser-@item.Id" data-userid="@item.Id" />*@
-                        <input type="checkbox" name="selectedList" id="selectedUser" value="@item.Id" />
-                    </td>
-                    <td>
-                        <i class="fa fa-user rounded-circle" style="padding:10px;border:2px solid #ccc;"></i>
-                    </td>
-                    <td>
-                        <a asp-controller="Accounts" asp-action="Index" asp-route-id="@item.Id" class="text-dark">@Html.DisplayFor(modelItem => item.GivenName)  @Html.DisplayFor(modelItem => item.Surname)</a>
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UserPrincipalName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Department)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Region)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UserType)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Source)
-                    </td>
-                </tr>
+                foreach (var item in Model.Users)
+                {
+                    <tr>
+                        <td>
+                            @*<input type="checkbox" name="chkboxUser-@item.Id" id="chkboxUser-@item.Id" data-userid="@item.Id" />*@
+                            <input type="checkbox" name="selectedList" id="selectedUser" value="@item.Id" />
+                        </td>
+                        <td>
+                            <i class="fa fa-user rounded-circle" style="padding:10px;border:2px solid #ccc;"></i>
+                        </td>
+                        <td>
+                            <a asp-controller="Accounts" asp-action="Index" asp-route-id="@item.Id" class="text-dark">@Html.DisplayFor(modelItem => item.GivenName)  @Html.DisplayFor(modelItem => item.Surname)</a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserPrincipalName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Region)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Source)
+                        </td>
+                    </tr>
+                }
             }
         </tbody>
     </table>

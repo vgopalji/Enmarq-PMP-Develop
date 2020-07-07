@@ -4,56 +4,60 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Bulk @TempData["action"] Users</h1>
-
-
-<div class="row ">
-    <form>
-        <div class="form-group row mb-3">
-            <label for="staticname" class="col-sm-2 col-form-label">
-                1. Download your csv file
-            </label>
-            <div class="col-sm-3">
-                <a class="btn btn-primary text-white" asp-controller="BulkUpload" asp-action="Download" asp-route-id="@TempData["action"]"> Download </a>
+<div id="page-content-wrapper">
+    <div class="container-fluid no-gutter border-bottom mb-2">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white pb-0 pt-0">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link font-weight-bold" href="#">Bulk @TempData["action"] Users</a>
+                    </li>
+                </ul>
             </div>
-        </div>
-        <div class="form-group row mb-3">
-            <label for="staticgrouptype" class="col-sm-2 col-form-label">
-                2. Edit your csv file
-            </label>
-            <div class="col-sm-6">
-            </div>
-        </div>
-    </form>
-
-    <form method="post" enctype="multipart/form-data"
-          asp-controller="BulkUpload" asp-action="Index" asp-route-id="@TempData["action"]">
-
-        <div class="form-group row mb-3">
-            <label for="inputDescription" class="col-sm-2 col-form-label">3. Upload your csv file  </label>
-            <div class="col-sm-6 ">
-                <div class="custom-file mb-3">
-                    <input type="file" class="custom-file-input" id="customFile" name="files" multiple>
+        </nav>
+    </div>
+    <div class="container">
+        <form>
+            <div class="form-group row mb-3">
+                <label for="staticname" class="col-sm-2 col-form-label">
+                    1. Download your csv file
+                </label>
+                <div class="col-sm-3">
+                    <a class="btn btn-primary text-white" asp-controller="BulkUpload" asp-action="Download" asp-route-id="@TempData["action"]"> Download </a>
                 </div>
             </div>
-        </div>
-        <div class="form-group row mb-3">
+            <div class="form-group row mb-3">
+                <label for="staticgrouptype" class="col-sm-2 col-form-label">
+                    2. Edit your csv file
+                </label>
+                <div class="col-sm-6">
+                </div>
+            </div>
+        </form>
+
+        <form method="post" enctype="multipart/form-data"
+              asp-controller="BulkUpload" asp-action="Index" asp-route-id="@TempData["action"]">
 
             <div class="form-group row mb-3">
-                <div class="col-sm-8 text-right">
-                    <input type="submit" value="Upload" class="btn btn-primary text-white" />
+                <label for="inputDescription" class="col-sm-2 col-form-label">3. Upload your csv file  </label>
+                <div class="col-sm-6 ">
+                    <div class="custom-file mb-3">
+                        <input type="file" class="custom-file-input" id="customFile" name="files" multiple>
+                    </div>
                 </div>
             </div>
-        </div>
+            <div class="form-group row mb-3">
 
-    </form>
+                <div class="form-group row mb-3">
+                    <div class="col-sm-8 text-right">
+                        <input type="submit" value="Upload" class="btn btn-primary text-white" onclick="blockUi();" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 
-
-    @*<form>
-            <a class="btn btn-primary text-white" asp-controller="BulkUpload" asp-action="Process"> Run Bulk Process </a>
-        </form>*@
+    <script type="text/javascript">
+        $(document).ready(function () { unBlockUi(); });
+    </script>
 </div>
-
-<script type="text/javascript">
-    $(document).ready(function () { unBlockUi(); });
-</script>

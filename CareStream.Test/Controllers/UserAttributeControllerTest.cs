@@ -39,9 +39,9 @@ namespace CareStream.Test.Controllers
         public async Task Create_ReturnsAViewResult_ByCreatingSelectList()
         {
             DoGroupMembersControllerInitialSetup();
-
+            var model = new UserAttributeModel();
             // Act
-            var result = await _userAttributeController.Create();
+            var result = await _userAttributeController.Create(model);
 
             // Assert
             Assert.IsType<ViewResult>(result);
@@ -51,10 +51,10 @@ namespace CareStream.Test.Controllers
         public async Task Upsert_ReturnsARedirectToActionResult_ByUpdatingModel()
         {
             DoGroupMembersControllerInitialSetup();
-            mockUserAttributeServiceRepo.Setup(x => x.UpsertUserAttributes(It.IsAny<ExtensionModel>())).Returns(Task.FromResult(true));
+            mockUserAttributeServiceRepo.Setup(x => x.UpsertUserAttributes(It.IsAny<UserAttributeModel>())).Returns(Task.FromResult(true));
 
             // Act
-            var result = await _userAttributeController.Upsert(GetExtensionModel());
+            var result = await _userAttributeController.Create(GetExtensionModel());
 
             // Assert
             Assert.IsType<RedirectToActionResult>(result);
@@ -77,9 +77,9 @@ namespace CareStream.Test.Controllers
             return new UserAttributeModel
             {
                 Id = "test",
-                ExtensionSchemas = new List<ExtensionSchema>
+                Properties = new List<Properties>
                 {
-                    new ExtensionSchema
+                    new Properties
                     {
                         DataType= "testType",
                         Name="test"
@@ -88,15 +88,27 @@ namespace CareStream.Test.Controllers
             };
         }
 
-        private ExtensionModel GetExtensionModel()
+        private UserAttributeModel GetExtensionModel()
         {
-            return new ExtensionModel
+            return new UserAttributeModel
             {
-                DataType = "testType",
-                Name = "test",
-                Description = "test desc",
-                TargetObjects = new List<string> { "test target" }
+                Id = string.Empty,
+                TargetObjects = new List<string> { "test target" },
+                Properties = new List<Properties>()
+                {
+                    new Properties()
+                    {
+                    DataType = "testType",
+                    Name = "test"
+                    }
+                },
+                Property = new Properties()
+                {
+                    DataType = "testTypenew",
+                    Name = "testnew"
+                }
             };
+
         }
 
         #endregion

@@ -3,6 +3,7 @@
 @{
 
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var filter = string.Empty;
 }
 <script type="text/javascript">
     function confirmDelete(isDelete) {
@@ -17,62 +18,78 @@
 
     }
 
-    $(document).ready(function () { unBlockUi(); });
+
+    $(document).ready(function () {
+
+        $('#usertbl').DataTable({
+            "language": {
+                "search": "",
+                "searchPlaceholder": "Search User Name",
+            },
+            "bLengthChange": false,
+            "fixedHeader": {
+                "footer": false
+            }
+        });
+        $('#refresh').on('click', function () {
+            window.location.reload();
+        });
+
+        $('#FilterSubmit').on('click', function () {
+            var id = $('#filter').val();
+            window.location = "@Url.Action("GetFilteredUsers", "Users")" +
+                "?id=" + id;
+        });
+
+        unBlockUi();
+
+         if ('@(Model == null || Model.Users == null || Model.Users.Count <= 0)'=='True')
+            toggleNoDataFound(false);
+    });
 
 </script>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>Carestream</title>
-    <!-- Bootstrap code & custom styles-->
-    <link href="~/css/bootstrap.min.css" rel="stylesheet">
-    <link href="~/style.css" rel="stylesheet">
-
-    <!-- Fontawesome -->
-    <script src="https://kit.fontawesome.com/e508532408.js" crossorigin="anonymous"></script>
-</head>
-
 <div id="page-content-wrapper">
-
     <form>
 
         <div class="container-fluid no-gutter border-bottom">
-            <nav class="navbar navbar-expand-lg navbar-light bg-white">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white pb-0 pt-0">
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item active">
                             <a asp-controller="Users"
-                               asp-action="Create" class="nav-link pr-2"><i class="fa fa-plus pr-2" onclick="blockUi();"></i>Create User</a>
+                               asp-action="Create" class="nav-link pr-2" onclick="blockUi();"><i class="fa fa-plus pr-2"></i>Create User</a>
                         </li>
                         <li class="nav-item active">
                             <a class="nav-link pr-2" asp-controller="BulkUpload" asp-action="Upload"
-                               asp-route-id="Create"><i class="fa fa-cloud-upload pr-2" onclick="blockUi();"></i>Bulk Create</a>
+                               asp-route-id="Create" onclick="blockUi();"><i class="fa fa-cloud-upload pr-2"></i>Bulk Create</a>
                         </li>
                         <li class="nav-item active">
                             <a class="nav-link pr-2" asp-controller="BulkUpload" asp-action="Upload"
-                               asp-route-id="Invite"><i class="fa fa-envelope-open-o pr-2" onclick="blockUi();"></i>Bulk Invite</a>
+                               asp-route-id="Invite" onclick="blockUi();"><i class="fa fa-envelope-open-o pr-2"></i>Bulk Invite</a>
                         </li>
                         <li class="nav-item active">
-                            <a class="nav-link pr-2" href="#"><i class="fa fa-refresh pr-2"></i>Refresh</a>
+                            <a class="nav-link pr-2" href="#" id="refresh" onclick="blockUi();"><i class="fa fa-refresh pr-2"></i>Refresh</a>
                         </li>
                         <li class="nav-item active">
                             <a class="nav-link pr-2" asp-controller="BulkUpload" asp-action="Upload"
-                               asp-route-id="Update"><i class="fa fa-pencil pr-2" onclick="blockUi();"></i>Bulk Update</a>
+                               asp-route-id="Update" onclick="blockUi();"><i class="fa fa-pencil pr-2"></i>Bulk Update</a>
                         </li>
                         <li class="nav-item active">
-                            <a class="nav-link pr-2" href="#"><i class="fa fa-key pr-2"></i>Reset Password</a>
+                            <a class="nav-link pr-2" asp-controller="BulkUpload" asp-action="Upload"
+                               asp-route-id="Delete" onclick="blockUi();"><i class="fa fa-trash-o pr-2"></i>Bulk Delete</a>
                         </li>
                         <li class="nav-item active">
-                            @*<a class="nav-link pr-2" id="deleteUsers" href="#"><i class="fa fa-trash-o pr-2"></i>Delete</a>*@
-                            <button type="button" class="nav-link pr-2" style="cursor:pointer;border:none;outline:none" value="Delete"  onclick="confirmDelete(true)">
-                                <i class="fa fa-trash-o pr-2" aria-hidden="true"></i> Delete
-                            </button>
+                            <a class="nav-link pr-2" asp-action="ResetPassword" asp-controller="Account" asp-area="AzureADB2C" onclick="blockUi();"><i class="fa fa-key pr-2"></i>Reset Password</a>
                         </li>
                         <li class="nav-item active">
-                            <a class="nav-link pr-2" asp-controller="BulkUpload" asp-action="DownloadUsers" onclick="blockUi();"><i class="fa fa-cloud-download pr-2"></i>Download Users</a>
+                            <a class="nav-link pr-2" id="deleteUsers" href="#" onclick="confirmDelete(true)"><i class="fa fa-trash-o pr-2"></i>Delete</a>
+                            @*<button type="button" class="nav-link pr-2" value="Delete"  onclick="confirmDelete(true)">
+                                    <i class="fa fa-trash-o pr-2" aria-hidden="true"></i> Delete
+                                </button>*@
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link pr-2" asp-controller="BulkUpload" asp-action="DownloadUsers"><i class="fa fa-cloud-download pr-2"></i>Download Users</a>
                         </li>
                     </ul>
                 </div>
@@ -81,51 +98,66 @@
 
 
         @Html.AntiForgeryToken()
+        <div>
+            <input type="text" name="filter" id="filter" value="@filter" />
+            @*<a asp-controller="Users" asp-action="GetFilteredUsers" asp-route-id="filter" class="btn-primary text-white" onclick="blockUi();">
+                    @Html.DisplayName("Filter")
+                </a>*@
+            <a id="FilterSubmit" class="btn-primary text-white">
+                @Html.DisplayName("Filter")
+            </a>
 
-        <div class="container-fluid">
-            <table class="table table-striped border">
+
+        </div>
+
+        <div class="container">
+            <table id="usertbl" class="table table-striped border">
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="selectedID1" /> </th>
                         <th></th>
                         <th>Name</th>
                         <th>User Name</th>
-                        <th>Department</th>
                         <th>Regions</th>
-                        <th>User Type</th>
                         <th>Source</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.Users)
+                    @if (Model != null && Model.Users != null && Model.Users.Count > 0)
                     {
-                        <tr>
-                            <td>
-                                @*<input type="checkbox" name="chkboxUser-@item.Id" id="chkboxUser-@item.Id" data-userid="@item.Id" />*@
-                                <input type="checkbox" name="selectedList" id="selectedUser" value="@item.Id" />
-                            </td>
-                            <td>
-                                <i class="fa fa-user rounded-circle" style="padding:10px;border:2px solid #ccc;"></i>
-                            </td>
-                            <td>
-                                <a asp-controller="Users" asp-action="Edit" asp-route-id="@item.Id" class="text-dark" onclick="blockUi();">@Html.DisplayFor(modelItem => item.GivenName)  @Html.DisplayFor(modelItem => item.Surname)</a>
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.UserPrincipalName)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Department)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Region)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.UserType)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Source)
-                            </td>
-                        </tr>
+                        foreach (var item in Model.Users)
+                        {
+                            <tr>
+                                <td>
+                                    @*<input type="checkbox" name="chkboxUser-@item.Id" id="chkboxUser-@item.Id" data-userid="@item.Id" />*@
+                                    <input type="checkbox" name="selectedList" id="selectedUser" value="@item.Id" />
+                                </td>
+                                <td>
+                                    <i class="fa fa-user rounded-circle" style="padding:10px;border:2px solid #ccc;"></i>
+                                </td>
+                                <td>
+                                    <a asp-controller="Users" asp-action="Edit" asp-route-id="@item.Id" class="text-dark" onclick="blockUi();">
+                                        @if (String.IsNullOrWhiteSpace(item.Surname) && @String.IsNullOrWhiteSpace(item.GivenName))
+                                        {
+                                            @Html.DisplayName("Invited User")
+                                        }
+                                        else
+                                        {
+                                            @Html.DisplayFor(modelItem => item.GivenName) @Html.DisplayFor(modelItem => item.Surname)
+                                        }
+                                    </a>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UserPrincipalName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Region)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Source)
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>

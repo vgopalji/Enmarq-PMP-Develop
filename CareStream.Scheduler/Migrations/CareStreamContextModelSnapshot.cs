@@ -15,7 +15,7 @@ namespace CareStream.Scheduler.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.4")
+                .HasAnnotation("ProductVersion", "3.1.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -171,6 +171,118 @@ namespace CareStream.Scheduler.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BulkUserFile");
+                });
+
+            modelBuilder.Entity("CareStream.Models.RolesAndPermissions.Permission", b =>
+                {
+                    b.Property<long>("PermissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Read")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ReadWrite")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Write")
+                        .HasColumnType("bit");
+
+                    b.HasKey("PermissionId");
+
+                    b.ToTable("Permission");
+                });
+
+            modelBuilder.Entity("CareStream.Models.RolesAndPermissions.Role", b =>
+                {
+                    b.Property<long>("RoleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RoleSection")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("RoleType")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.HasKey("RoleId");
+
+                    b.ToTable("Role");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1L,
+                            CreatedBy = "Admin",
+                            CreatedDate = new DateTime(2020, 6, 23, 16, 4, 26, 64, DateTimeKind.Local).AddTicks(857),
+                            ModifiedBy = "Admin",
+                            ModifiedDate = new DateTime(2020, 6, 23, 16, 4, 26, 64, DateTimeKind.Local).AddTicks(1650),
+                            RoleSection = "Users"
+                        },
+                        new
+                        {
+                            RoleId = 2L,
+                            CreatedBy = "Admin",
+                            CreatedDate = new DateTime(2020, 6, 23, 16, 4, 26, 65, DateTimeKind.Local).AddTicks(9846),
+                            ModifiedBy = "Admin",
+                            ModifiedDate = new DateTime(2020, 6, 23, 16, 4, 26, 65, DateTimeKind.Local).AddTicks(9869),
+                            RoleSection = "Groups"
+                        },
+                        new
+                        {
+                            RoleId = 3L,
+                            CreatedBy = "Admin",
+                            CreatedDate = new DateTime(2020, 6, 23, 16, 4, 26, 66, DateTimeKind.Local).AddTicks(31),
+                            ModifiedBy = "Admin",
+                            ModifiedDate = new DateTime(2020, 6, 23, 16, 4, 26, 66, DateTimeKind.Local).AddTicks(35),
+                            RoleSection = "UserAttributes"
+                        },
+                        new
+                        {
+                            RoleId = 4L,
+                            CreatedBy = "Admin",
+                            CreatedDate = new DateTime(2020, 6, 23, 16, 4, 26, 66, DateTimeKind.Local).AddTicks(73),
+                            ModifiedBy = "Admin",
+                            ModifiedDate = new DateTime(2020, 6, 23, 16, 4, 26, 66, DateTimeKind.Local).AddTicks(76),
+                            RoleSection = "BulkOperations"
+                        });
                 });
 #pragma warning restore 612, 618
         }

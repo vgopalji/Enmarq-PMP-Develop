@@ -11,6 +11,7 @@ namespace CareStream.Models
         public List<UserRole> UserRoles { get; set; }
         public List<UserLanguage> UserLanguages { get; set; }
         public Dictionary<string,string> Groups { get; set; }
+        public List<UserType> UserAttributes { get; set; }
     }
 
     public class UserType

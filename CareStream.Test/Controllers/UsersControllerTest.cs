@@ -17,6 +17,7 @@ namespace CareStream.Test.Controllers
     {
         private UsersController _usersController;
         private Mock<IUserService> mockUserServiceRepo;
+        private Mock<IUserAttributeService> mockUserAttributeServiceRepo;
 
         #region Test Cases
 
@@ -75,9 +76,9 @@ namespace CareStream.Test.Controllers
             var result = await _usersController.GetFilteredUsers("test");
 
             // Assert
-            var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<object>(viewResult.ViewData.Model) as UsersModel;
-            Assert.Single(model.Users);
+            var viewResult = Assert.IsType<RedirectToActionResult>(result);
+            var users = Assert.IsAssignableFrom<object>(viewResult.RouteValues["Users"]) as List<UserModel>;
+            Assert.Single(users);
         }
 
         [Fact]
@@ -136,9 +137,10 @@ namespace CareStream.Test.Controllers
         private void DoUserControllerInitialSetup()
         {
             mockUserServiceRepo = new Mock<IUserService>();
+            mockUserAttributeServiceRepo = new Mock<IUserAttributeService>();
             var mockLoggerRepo = new Mock<ILoggerManager>();
 
-            _usersController = new UsersController(mockUserServiceRepo.Object, mockLoggerRepo.Object);
+            _usersController = new UsersController(mockUserServiceRepo.Object, mockLoggerRepo.Object, mockUserAttributeServiceRepo.Object);
         }
 
         private UsersModel GetUserModel()

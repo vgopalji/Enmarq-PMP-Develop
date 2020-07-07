@@ -20,6 +20,9 @@ namespace CareStream.WebApp.Controllers
                 case 404:
                     ViewBag.ErrorMessage = "Sorry, the resource you requested could not be found";
                     break;
+                case 401:
+                    ViewBag.ErrorMessage = "You are not Authenticated / Authorized for the requested resource.";
+                    break;
             }
             return View("NotFound");
         }

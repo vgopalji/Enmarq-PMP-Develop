@@ -23,6 +23,8 @@ namespace CareStream.Utility
         public static string AADGraphResourceId;
         public static string AADGraphVersion;
         public static string ExtensionName;
+        public static string ApplicationName;
+        public static string AppObjectId;
 
         private static IConfiguration configuration;
 
@@ -33,6 +35,7 @@ namespace CareStream.Utility
         private static string graphResource;
         private static string graphAPIEndpoint;
         private static string authority;
+        public static string Domain;
 
         #endregion
 
@@ -56,7 +59,7 @@ namespace CareStream.Utility
             TenantId = azureOptions.TenantId;
             appId = azureOptions.AppId;
             clientSecret = azureOptions.ClientSecret;
-            b2cExtensionAppClientId = azureOptions.B2cExtensionAppClientId;
+            //b2cExtensionAppClientId = azureOptions.B2cExtensionAppClientId;
 
             graphResource = azureOptions.GraphResource;
             graphAPIEndpoint = $"{azureOptions.GraphResource}{azureOptions.GraphResourceEndPoint}";
@@ -67,6 +70,9 @@ namespace CareStream.Utility
             AADGraphResourceId = azureOptions.AADGraphResourceId;
             AADGraphVersion = azureOptions.AADGraphVersion;
             ExtensionName = azureOptions.ExtensionName;
+            ApplicationName = azureOptions.ApplicationName;
+            AppObjectId = azureOptions.AppObjectId;
+            Domain = azureOptions.Domain;
 
         }
         #endregion

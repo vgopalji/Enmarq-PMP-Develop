@@ -5,10 +5,70 @@
 }
 
 <script type="text/javascript">
-    $(document).ready(function () { unBlockUi(); });
+    var userAttributes;
+    $(document).ready(function () {
+
+        userAttributes = @Html.Raw(Json.Serialize(TempData.ContainsKey("UserAttrs") ? TempData["UserAttrs"]:string.Empty));
+
+        if (userAttributes)
+            loadUserAttributes(userAttributes);
+
+        unBlockUi();
+    });
+
+    function loadUserAttributes(userAttributes) {
+        $.each(userAttributes, function (index, item) {
+            var newSelect = $('<select id="dataType-' + index + '" class="form-control" style = "-webkit-appearance: menulist !important;width:300px" disabled="disabled"></select>');
+            $('#DataType option').each(function () {
+                var option = $("<option></option>").val($(this).val()).text($(this).text());
+                newSelect.append(option);
+            });
+            var template = '<div class="form-group row mb-6"> ' +
+                '<label class="col-sm-1 col-form-label">Name</label>' +
+                '<div class="col-sm-5">' +
+                '<input type="text" class="form-control" id="name-' + index + '" disabled="disabled">' +
+                '</div>' +
+                '<label class="col-sm-1 col-form-label">Data Type</label>' +
+                '<div class="col-sm-5" id="selectElement[' + index + ']">' +
+                '</div>' +
+                '</div><br/>';
+
+            $("#user-attrs-list").append($(template));
+            $(document.getElementById('selectElement[' + index + ']')).append(newSelect);
+
+            $(document.getElementById('dataType-' + index)).val(item.dataType);
+            $(document.getElementById('name-' + index)).val(item.name);
+        });
+    }
+
+    var index = 0;
+
+    function addSchemaAttribute() {
+        var newSelect = $('<select id="[' + index + '].dataType" name="[' + index + '].dataType" class="form-control" style = "-webkit-appearance: menulist !important;width:300px"></select>');
+        $('#DataType option').each(function () {
+            var option = $("<option></option>").val($(this).val()).text($(this).text());
+            newSelect.append(option);
+        });
+        var template = '<div class="form-group row mb-6"> ' +
+            '<label for="staticname" class="col-sm-1 col-form-label">Name</label>' +
+            '<div class="col-sm-5">' +
+            '<input type="text" class="form-control" asp-for="[' + index + '].name" id="[' + index + '].name" name="[' + index + '].name" placeholder="Enter Name">' +
+            '</div>' +
+            '<label for="staticdatatype" class="col-sm-1 col-form-label">Data Type</label>' +
+            '<div class="col-sm-5 selectElement-' + index + '">' +
+            '</div>' +
+            '</div><br/>';
+
+        $("#schema-attrs-container").append($(template));
+        $("#schema-attrs-container").find('.selectElement-' + index).append(newSelect);
+        $(document.getElementById('[' + index + '].dataType')).val($('#DataType').val());
+        $(document.getElementById('[' + index + '].name')).val($('#name').val());
+
+        index++;
+    }
 </script>
 
-<h1>Create</h1>
+<h1>Update</h1>
 
 <div class="container no-gutter border-bottom mb-4">
     <div class="row">
@@ -20,7 +80,7 @@
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="nav-tabs navbar-nav">
                     <li class="nav-item active col-12 mt-2 mb-2">
-                        <span class="font-weight-bold"> Create an attribute </span>
+                        <span class="font-weight-bold"> Update Schema </span>
                     </li>
                 </ul>
             </div>
@@ -29,43 +89,42 @@
 </div>
 <div class="container">
     <div class="row ">
-        <form method="post" action="/UserAttribute/Upsert">
+        <form method="post" action="/UserAttribute/Create">
             <input type="hidden" asp-for="TargetObjects" value="user" />
-            <div class="form-group row mb-3">
-                <label for="staticname" class="col-sm-2 col-form-label">
-                    Name
-                </label>
-                <div class="col-sm-6">
-                    <input type="text" class="form-control" asp-for="Name" id="name" placeholder="Enter Name">
-                </div>
-            </div>
-            <div class="form-group row mb-3">
-                <label for="staticdatatype" class="col-sm-2 col-form-label">
-                    Data Type
-                </label>
-                <div class="col-sm-6">
-                    @Html.DropDownListFor(x => x.DataType, (SelectList)ViewData["DataType"],
-                                      new { style = "-webkit-appearance: menulist !important;width:300px", @class = "form-control" })
+            <div id="schema-attrs-container">
+                <div class="form-group row mb-6">
+                    <label for="staticname" class="col-sm-1 col-form-label">
+                        Name
+                    </label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" asp-for="Name" id="name" placeholder="Enter Name">
+                    </div>
+                    <label for="staticdatatype" class="col-sm-1 col-form-label">
+                        Data Type
+                    </label>
+                    <div class="col-sm-5">
+                        @Html.DropDownListFor(x => x.DataType, (SelectList)ViewData["DataType"],
+                                          new { style = "-webkit-appearance: menulist !important;width:300px", @class = "form-control" })
 
-                    @*<select class="form-control" style="-webkit-appearance: menulist !important;">
-                        <option>Default select</option>
-                    </select>*@
-                </div>
-            </div>
-            <div class="form-group row mb-3">
-                <label for="inputDescription" class="col-sm-2 col-form-label">Description </label>
-                <div class="col-sm-6">
-                    <textarea class="form-control" id="Description" asp-for="Description" rows="3" placeholder="Enter Description"></textarea>
-                </div>
-            </div>
-            <div class="form-group row mb-3">
-
-                <div class="form-group row mb-3">
-                    <div class="col-sm-8 text-right">
-                        <button type="submit" class="btn btn-primary text-white">Create</button>
                     </div>
                 </div>
+                <br />
+                <div class="form-group row mb-3">
+                    @*<div class="col-sm-4"></div>
+                    <div class="col-sm-4">
+                        <button type="button" id="add-attribute" class="btn btn-primary text-white" onclick="addSchemaAttribute();">Add</button>
+                    </div>*@
+                    <div class="col-sm-4">
+                        <button type="submit" class="btn btn-primary text-white" onclick="blockUi();">Submit</button>
+                    </div>
+                </div>
+                <br />
             </div>
         </form>
+    </div>
+    <div class="row">
+        <div id="user-attrs-list">
+
+        </div>
     </div>
 </div>

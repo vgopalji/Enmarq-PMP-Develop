@@ -15,6 +15,13 @@ namespace CareStream.Models
 
         [JsonProperty(PropertyName = "B2cExtensionAppClientId")]
         public string B2cExtensionAppClientId { get; set; }
+        
+        [JsonProperty(PropertyName = "ApplicationName")]
+        public string ApplicationName { get; set; }
+        [JsonProperty(PropertyName = "AppObjectId")]
+        public string AppObjectId { get; set; }
+        [JsonProperty(PropertyName = "Domain")]
+        public string Domain { get; set; }
 
         [JsonProperty(PropertyName = "Instance")]
         public string Instance { get; set; }

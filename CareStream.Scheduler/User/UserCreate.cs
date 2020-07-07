@@ -86,7 +86,7 @@ namespace CareStream.Scheduler
                         if (!string.IsNullOrEmpty(bulkUser.MobilePhone))
                             userModel.MobilePhone = bulkUser.MobilePhone;
 
-                        if(!string.IsNullOrEmpty(bulkUser.OfficePhone))
+                        if (!string.IsNullOrEmpty(bulkUser.OfficePhone))
                         {
                             userModel.BusinessPhone = bulkUser.OfficePhone;
                         }
@@ -114,7 +114,8 @@ namespace CareStream.Scheduler
                         var tenantId = GraphClientUtility.TenantId;
                         var b2cExtensionAppClientId = GraphClientUtility.b2cExtensionAppClientId;
 
-                        var newUser = userService.BuildUserForCreation(userModel, tenantId, b2cExtensionAppClientId);
+                        var newUser = userService.BuildUserForCreation(userModel, GraphClientUtility.Domain);
+                        newUser.UserPrincipalName = $"{newUser.MailNickname}@{GraphClientUtility.Domain}";
 
                         var result = await client.Users.Request().AddAsync(newUser);
 
@@ -128,7 +129,7 @@ namespace CareStream.Scheduler
                             bulkUser.Error = $"Failed to create user for [{bulkUser.UserPrincipalName}]";
                             _dbHelper.UpdateTable(bulkUser, CareStreamConst.Bulk_User_Failed_Status);
                         }
-                        
+
                     }
                     catch (Exception ex)
                     {

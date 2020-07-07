@@ -12,7 +12,7 @@ namespace CareStream.Utility
     {
         Task<UserAttributeModel> GetUserAttribute();
 
-        Task UpsertUserAttributes(ExtensionModel extension);
+        Task UpsertUserAttributes(UserAttributeModel userAttribute);
     }
 
     public class UserAttributeService : IUserAttributeService
@@ -23,218 +23,32 @@ namespace CareStream.Utility
         {
             _logger = logger;
         }
-
         public async Task<UserAttributeModel> GetUserAttribute()
         {
-            try
+            var client = GraphClientUtility.GetGraphServiceClient();
+            var userAttributes = new UserAttributeModel();
+
+            var properties = await client.Applications[GraphClientUtility.AppObjectId].ExtensionProperties
+               .Request()
+               .GetAsync();
+
+            var extProperties = new List<Properties>();
+            foreach (ExtensionProperty ext in properties.CurrentPage)
             {
-                var client = GraphClientUtility.GetGraphServiceClient();
-
-                if (client == null)
+                var names = ext.Name.Split('_');
+                extProperties.Add(new Properties
                 {
-                    _logger.LogError("UserAttributeService-GetUserAttribute: Unable to create proxy for the Azure AD B2C graph client");
-                    return null;
-                }
-                _logger.LogInfo("UserAttributeService-GetUserAttribute: [Started] to fetch user attribute in Azure AD B2C");
-
-                var extensionName = GraphClientUtility.ExtensionName;
-
-                var schemaExtensions = await client.SchemaExtensions.Request().GetAsync();
-
-
-                var userAttributeModel = new UserAttributeModel();
-                var extensionSchemas = new List<ExtensionSchema>();
-                while (schemaExtensions.NextPageRequest != null)
-                {
-                    foreach (SchemaExtension extension in schemaExtensions.CurrentPage)
-                    {
-                        try
-                        {
-                            if (extension.Id.Contains(extensionName))
-                            {
-                                userAttributeModel.Id = extension.Id;
-
-                                foreach (var item in extension.Properties)
-                                {
-                                    try
-                                    {
-                                        ExtensionSchema extensionSchema = new ExtensionSchema();
-
-                                        extensionSchema.Name = item.Name;
-                                        extensionSchema.DataType = item.Type;
-                                        extensionSchemas.Add(extensionSchema);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        _logger.LogError($"ExtensionController-GetExtensions: fail to add extension [name:{item.Name}] to collection ");
-                                        _logger.LogError(ex);
-                                    }
-                                }
-                                userAttributeModel.ExtensionSchemas = extensionSchemas;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError($"ExtensionController-GetExtensions: fail to add extension [name:{extension.Id}] to collection ");
-                            _logger.LogError(ex);
-                        }
-                    }
-
-
-                    schemaExtensions = await schemaExtensions.NextPageRequest.GetAsync();
-                }
-
-                return userAttributeModel;
-
+                    Name = names[names.Length - 1],
+                    DataType = ext.DataType
+                });
             }
-            catch (Exception ex)
-            {
-                _logger.LogError("ExtensionController-GetExtensions: Exception occured....");
-                _logger.LogError(ex);
-            }
-            return null;
+            userAttributes.Properties = extProperties;
+            return userAttributes;
         }
 
-        public async Task UpsertUserAttributes(ExtensionModel extension)
+        public async Task<SchemaExtension> GetIfExtensionExist(string schemaName)
         {
-            try
-            {
-                _logger.LogInfo("UserAttributeService-UpsertUserAttributes: [Started] creation of user attribute in Azure AD B2C");
-
-                if (extension == null)
-                {
-                    _logger.LogError("UserAttributeService-UpsertUserAttributes: Input cannot be null");
-                    return;
-                }
-
-
-                #region Validation 
-
-                if (extension.TargetObjects == null)
-                {
-                    _logger.LogError("UserAttributeService-UpsertUserAttributes: Target Object for creation of custom attribute cannot be empty");
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(extension.Name)
-                    && string.IsNullOrEmpty(extension.DataType)
-                    && !extension.TargetObjects.Any())
-                {
-                    _logger.LogError("UserAttributeService-UpsertUserAttributes: Input [Name | Data Type | Target Obejct] for creation of custom attribute cannot be empty");
-                    return;
-                }
-                #endregion
-
-                var client = GraphClientUtility.GetGraphServiceClient();
-
-                if (client == null)
-                {
-                    _logger.LogError("UserAttributeService-UpsertUserAttributes: Unable create graph proxy to access Azure AD B2C");
-                    return;
-                }
-
-
-                var taskSchemaName = await CheckIfExtensionExist(GraphClientUtility.ExtensionName);
-                var schemaName = string.Empty;
-
-                if (taskSchemaName != null)
-                {
-                    schemaName = "";
-                }
-
-                if (string.IsNullOrEmpty(schemaName))
-                {
-                    //var schemaExtension = new SchemaExtension
-                    //{
-                    //    Id = GraphClientUtility.ExtensionName,
-                    //    Description = extension.Description,
-                    //    TargetTypes = extension.TargetObjects,
-                    //    Properties = new List<ExtensionSchemaProperty>()
-                    //    {
-                    //        new ExtensionSchemaProperty
-                    //        {
-                    //            Name= extension.Name,
-                    //            Type = extension.DataType
-                    //        }
-                    //    }
-                    //};
-
-                    var schemaExtension = new SchemaExtension
-                    {
-                        Id = "prasadtest3vikas",
-                        Description = "Prasad Learn training courses extensions",
-                        Status = "InDevelopment",
-                        TargetTypes = new List<String>()
-                {
-                    "User"
-                },
-                        Properties = new List<ExtensionSchemaProperty>()
-                {
-                    new ExtensionSchemaProperty
-                    {
-                        Name = "courseId",
-                        Type = "Integer"
-                    },
-                    new ExtensionSchemaProperty
-                    {
-                        Name = "courseName",
-                        Type = "String"
-                    },
-                    new ExtensionSchemaProperty
-                    {
-                        Name = "courseType",
-                        Type = "String"
-                    }
-                }
-                    };
-
-                    try
-                    {
-                        var response = await client.SchemaExtensions
-                            .Request()
-                            .AddAsync(schemaExtension);
-
-                        var result = response;
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Write(ex);
-                    }
-
-                }
-                else
-                {
-                    var schemaExtension = new SchemaExtension
-                    {
-                        TargetTypes = extension.TargetObjects,
-                        Properties = new List<ExtensionSchemaProperty>()
-                        {
-                            new ExtensionSchemaProperty
-                            {
-                                Name=extension.Name,
-                                Type = extension.DataType
-                            }
-                        }
-                    };
-                    await client.SchemaExtensions[schemaName].Request().UpdateAsync(schemaExtension);
-                }
-
-
-                _logger.LogInfo("UserAttributeService-UpsertUserAttributes: [Completed] creation of user attribute in Azure AD B2C");
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("UserAttributeService-UpsertUserAttributes: Exception occured....");
-                _logger.LogError(ex);
-                throw ex;
-            }
-        }
-
-        private async Task<string> CheckIfExtensionExist(string schemaName)
-        {
-            var retVal = string.Empty;
+            var retVal = new SchemaExtension();
             try
             {
                 var client = GraphClientUtility.GetGraphServiceClient();
@@ -253,11 +67,11 @@ namespace CareStream.Utility
                     {
                         if (extension.Id.Contains(schemaName))
                         {
-                            retVal = extension.Id;
+                            retVal = extension;
                             break;
                         }
                     }
-                    if (!string.IsNullOrEmpty(retVal))
+                    if (retVal == null)
                     {
                         break;
                     }
@@ -270,6 +84,70 @@ namespace CareStream.Utility
                 _logger.LogError(ex);
             }
             return retVal;
+        }
+
+        public async Task<ExtensionProperty> getCarestreamExtensionPropertyIfExists(string propertyName)
+        {
+            var client = GraphClientUtility.GetGraphServiceClient();
+
+            var extProperties = await client.Applications[GraphClientUtility.AppObjectId].ExtensionProperties
+                            .Request()
+                            .GetAsync();
+
+            foreach (ExtensionProperty property in extProperties)
+            {
+                if (property.Name.Contains(propertyName))
+                    return property;
+            }
+
+            return null;
+        }
+
+        public async Task UpsertUserAttributes(UserAttributeModel userAttribute)
+        {
+            var client = GraphClientUtility.GetGraphServiceClient();
+           
+
+           if (!await IsProertyExisty(userAttribute.Property.Name))
+            {
+                var extensionProperty = new ExtensionProperty();
+                var properties = await client.Applications[GraphClientUtility.AppObjectId].ExtensionProperties
+               .Request()
+               .GetAsync();
+                extensionProperty = properties.CurrentPage.Where(prop => prop.AppDisplayName == userAttribute.AppDisplayName).First();
+
+                extensionProperty = new ExtensionProperty
+                {
+                    Name = userAttribute.Property.Name,
+                    DataType = userAttribute.Property.DataType,
+                    TargetObjects = new List<String>()
+                {
+                    "User"
+                }
+                };
+
+                await client.Applications[GraphClientUtility.AppObjectId].ExtensionProperties
+                    .Request()
+                    .AddAsync(extensionProperty);
+            }           
+
+        }
+
+        private async Task<Boolean> IsProertyExisty(string name)
+        {
+            var client = GraphClientUtility.GetGraphServiceClient();
+
+            var properties = await client.Applications[GraphClientUtility.AppObjectId].ExtensionProperties
+               .Request()
+               .GetAsync();
+            foreach (ExtensionProperty ext in properties.CurrentPage)
+            {
+                if (name.Equals(ext.Name))
+                {
+                    return true;
+                }          
+            }
+            return false;
         }
     }
 }

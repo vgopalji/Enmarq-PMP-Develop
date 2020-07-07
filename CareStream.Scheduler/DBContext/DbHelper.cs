@@ -53,5 +53,12 @@ namespace CareStream.Scheduler
                 _logger.LogError(ex);
             }
         }
+
+        public static CareStreamContext GetCareStreamContext()
+        {
+            CareStreamContextFactory apiContextFactory = new CareStreamContextFactory();
+
+            return apiContextFactory.CreateDbContext(new string[] { });
+        }
     }
 }

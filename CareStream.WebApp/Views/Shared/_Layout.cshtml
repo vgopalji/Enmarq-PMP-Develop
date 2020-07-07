@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using CareStream.WebApp.Extensions
+<!DOCTYPE html>
 <html lang="en">
 <head>
 
@@ -34,7 +35,6 @@
 </head>
 
 <body>
-
     @{
         if (User.Identity.IsAuthenticated)
         {
@@ -45,19 +45,18 @@
             <input type="hidden" id="Controller" />
             <input type="hidden" id="Action" />
 
-
             <nav class="topbar navbar fixed-top navbar-expand-sm border-bottom">
                 <div class="sidebar-heading col-sm-2 text-center">
                     <img src="~/img/logo.gif" alt="Carestream" />
                 </div>
                 <partial name="_LoginPartial" />
-                <div id="user-info" style="color:@TempData["UserMsgColor"];"><span class="user-msg-info">@TempData["UserMessage"]</span></div>
+                <div id="user-info" class="text-center bg-light" style="color:@TempData["UserMsgColor"];"><span class="user-msg-info">@TempData["UserMessage"]</span></div>
                 <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
                     <li class="nav-item dropdown">
                         <a class="text-decoration-none dropdown-toggle text-dark row" href="#" id="navbarDropdown" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <div class="text-right col">
-                                <strong>John Doe</strong><br />
+                                <strong>@User.GetUserFullName()</strong><br />
                                 <small>Carestream Admin</small>
                             </div>
                             <div class="text-right col" style="width:35px;height:35px;">
@@ -69,7 +68,7 @@
                             <div class="row">
                                 <div class="text-truncate col">Carestream</div>
                                 <div class="text-truncate text-right col">
-                                    <a href="" class="text-decoration-none text-dark">Signout</a>
+                                    <a class="nav-link text-dark" asp-area="AzureADB2C" asp-controller="Account" asp-action="SignOut">Sign out</a>
                                 </div>
                             </div>
                             <div class="row mt-3 pb-3">
@@ -78,17 +77,11 @@
                                 </div>
                                 <div class="text-truncate col-9">
                                     <h6>
-                                        <strong>John Doe</strong><br />
-                                        <small class="text-truncate">john.doe@carestream.com</small>
+                                        <strong>@User.GetUserFullName()</strong><br />
+                                        <small class="text-truncate">@User.GetEmail()</small>
                                     </h6>
-                                    <a asp-controller="Accounts" asp-action="Index" class="text-decoration-none">View Account</a>
+                                    <a asp-controller="Users" asp-action="Edit" asp-route-id="@User.GetUserId()" class="text-decoration-none" onclick="blockUi();">View Account</a>
                                 </div>
-                                <div class="text-truncate col-9">
-                                    <div class="text-truncate col-9">
-                                        <a class="nav-link text-dark" asp-area="AzureADB2C" asp-controller="Account" asp-action="SignOut">Sign out</a>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
                     </li>
@@ -134,8 +127,8 @@
                                         <a class="list-group-item list-group-item-action" asp-area="" asp-controller="Users" asp-action="UsersList" onclick="blockUi();">All Users</a>
                                         <a class="list-group-item list-group-item-action" asp-area="" asp-controller="Users" asp-action="Create" onclick="blockUi();">Create User</a>
                                         <a class="list-group-item list-group-item-action" asp-area="" asp-controller="Users" asp-action="DeletedUsers" onclick="blockUi();">Deleted Users</a>
-                                        <a href="#" class="list-group-item list-group-item-action">User Attributes</a>
-                                        <a href="#" class="list-group-item list-group-item-action">Bulk Operations</a>
+                                        <a class="list-group-item list-group-item-action" asp-area="" asp-controller="UserAttribute" asp-action="List" onclick="blockUi();">User Attributes</a>
+                                        <a class="list-group-item list-group-item-action" asp-area="" asp-controller="BulkOperations" asp-action="FilesUploaded" onclick="blockUi();">Bulk Operations</a>
                                     </div>
                                 </div>
                             </div>
@@ -150,8 +143,6 @@
                                     <div class="panel-body bg-white pl-4">
                                         <a class="list-group-item list-group-item-action" asp-area="" asp-controller="Group" asp-action="Index" onclick="blockUi();">All Groups</a>
                                         <a class="list-group-item list-group-item-action" asp-area="" asp-controller="Group" asp-action="Create" onclick="blockUi();">Create Group</a>
-                                        <a href="#" class="list-group-item list-group-item-action">Deleted Groups</a>
-                                        <a href="#" class="list-group-item list-group-item-action">Bulk Operations</a>
                                     </div>
                                 </div>
                             </div>
@@ -163,8 +154,22 @@
                                     </a>
                                 </div>
                                 <div id="collapseFour" class="panel-collapse collapse">
-                                    <div class="panel-body">
+                                    <div class="panel-body bg-white pl-4">
+                                        <a class="list-group-item list-group-item-action" asp-area="" asp-controller="Permission" asp-action="Update" onclick="blockUi();">Permissions</a>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive"
+                                       class="list-group-item list-group-item-action">
+                                        <i class="fa fa-users"></i> Bulk Operations
+                                    </a>
+                                </div>
+                                <div id="collapseFive" class="panel-collapse collapse">
+                                    <div class="panel-body bg-white pl-4">
+                                        <a class="list-group-item list-group-item-action" asp-area="" asp-controller="BulkOperations" asp-action="FilesUploaded" onclick="blockUi();">Files Uploaded</a>
                                     </div>
                                 </div>
                             </div>
@@ -211,6 +216,10 @@
                         </div>
 
                     </div>
+
+                    <div id="no-data-found" style="display:none">
+                        No Data Found.
+                    </div>
                 </div>
             </div>
         }
@@ -223,6 +232,7 @@
             </ul>
             <div id="page-content-wrapper">
                 @RenderBody()
+
             </div>
         }
     }
@@ -233,6 +243,16 @@
 </body>
 </html>
 <script>
+
+    $(document).ready(function () {
+        $("#selectedID1").click(function (e) {
+            var parent = this;
+            $("input:checkbox[name=selectedList]").each(function () {
+                $(this).prop('checked', $(parent).prop('checked'));
+            });
+        });
+    });
+
     $("#menu-toggle").click(function (e) {
         e.preventDefault();
         $("#wrapper").toggleClass("toggled");
@@ -269,6 +289,13 @@
     function unBlockUi() {
         $('.fullScreenLoader').hide();
         $('#user-info').fadeIn().delay(10000).fadeOut();
+    }
+
+    function toggleNoDataFound(hide) {
+        if (hide)
+            $('#no-data-found').hide();
+        else
+            $('#no-data-found').show();
     }
 
     //$("#ajaxLoader").ajaxStart(function () {

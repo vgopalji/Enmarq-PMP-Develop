@@ -1,40 +1,34 @@
 ﻿@model CareStream.Models.GroupAssignModel
+<header class="bs-canvas-header p-3 text-white overflow-auto px-3 py-3">
+    <h4 class="d-inline-block text-dark mb-0 float-left">Add @Model.AssignFor</h4>
+</header>
 
-
-
-        <header class="bs-canvas-header p-3 text-white overflow-auto">
-            <h4 class="d-inline-block text-dark mb-0 float-left">Add @Model.AssignFor</h4>
-        </header>
-
-        <div class="bs-canvas-content px-3 py-3">
-            <div class="container">
-                <div class="row ">
-                    <table id="OffsetWizDiv" class="table table-striped border" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th><input name="select_all" value="1" id="example-select-all" type="checkbox" /></th>
-                                <th>Group Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model.AssignList)
-                            {
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" name="chkbox_@Model.AssignFor-@item.Key" id="chkbox_@Model.AssignFor-@item.Key" data-memberid="@item.Key" />
-                                    </td>
-                                    <td>
-                                        <label style="text-wrap:normal">@item.Value</label>
-                                    </td>
-                                </tr>
-                            }
-
-                        </tbody>
-                    </table>
-
-                </div>
-            </div>
-
+<div class="bs-canvas-content">
+    <div class="container">
+        <div class="col-12" style="overflow:auto;">
+            <table id="OffsetWizDiv" class="table table-striped border" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th><input name="select_all" value="1" id="example-select-all" type="checkbox" /></th>
+                        <th>Users</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.AssignList)
+                    {
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="chkbox_@Model.AssignFor-@item.Key" id="chkbox_@Model.AssignFor-@item.Key" data-memberid="@item.Key" />
+                            </td>
+                            <td>
+                                <label style="text-wrap:normal" class="text-truncate">@item.Value</label>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
+    </div>
+</div>
 
 

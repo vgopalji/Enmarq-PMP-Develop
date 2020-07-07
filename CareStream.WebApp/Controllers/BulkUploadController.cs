@@ -79,10 +79,10 @@ namespace CareStream.WebApp.Controllers
             var usersModel = await _userService.GetUser();
 
             var builder = new StringBuilder();
-            builder.AppendLine("userPrincipalName,displayName,surname,mail,givenName");
+            builder.AppendLine("DisplayName,UserPrincipalName,InitialPassword,BlockSignIn,FirstName,LastName,JobTitle,Department,Usagelocation,StreetAddress,State,Country,Office,City,ZIP,OfficePhone,MobilePhone");
             foreach (var user in usersModel.Users)
             {
-                builder.AppendLine($"{user.UserPrincipalName},{user.DisplayName},{user.Surname},{user.Mail},{user.GivenName}");
+                builder.AppendLine($"{user.DisplayName},{user.UserPrincipalName},{user.Password},'',{user.GivenName},{user.Surname}, {user.JobTitle}, {user.Department}, {user.UsageLocation}, {user.StreetAddress}, {user.State},{user.Country}, {user.OfficeLocation}, {user.City}, {user.PostalCode}, {user.BusinessPhone}, {user.MobilePhone}");
             }
 
             return File(Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", "users.csv");
@@ -189,7 +189,7 @@ namespace CareStream.WebApp.Controllers
                     }
                 }
 
-                ShowSuccessMessage("Succssfully uploaded the file.");
+                ShowSuccessMessage($"File has been uploaded successfully. We will notify you once the operation {actionFor} is completed");
             }
             catch (Exception ex)
             {

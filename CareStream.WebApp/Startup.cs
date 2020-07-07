@@ -23,6 +23,7 @@ using CareStream.Utility;
 using CareStream.LoggerService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
+using CareStream.Scheduler.PermissionService;
 
 namespace CareStream.WebApp
 {
@@ -47,20 +48,7 @@ namespace CareStream.WebApp
                     options.UseSqlServer(CareStreamConst.CareStreamConnectionString, x => x.MigrationsAssembly(typeof(CareStreamContext).GetTypeInfo().Assembly.GetName().Name)));
 
             services.AddAuthentication(AzureADB2CDefaults.AuthenticationScheme)
-               .AddAzureADB2C(options => Configuration.Bind("AzureAdB2CLogin", options));
-
-            // Update by Venu
-            //services.Configure<JwtBearerOptions>(
-            //AzureADB2CDefaults.JwtBearerAuthenticationScheme, options =>
-            //{
-            //    options.Authority = $"{Configuration["AzureAdB2CLogin: Instance"]}/{Configuration["AzureAdB2C:Tenant"]}/{Configuration["AzureAdB2CLogin:SignUpSignInPolicyId"]}/v2.0/";
-            //    options.Audience = Configuration["AzureAdB2C:ClientId"];
-            //    options.RequireHttpsMetadata = false;
-            //    options.Events = new JwtBearerEvents
-            //    {
-            //        OnAuthenticationFailed = AuthenticationFailed
-            //    };
-            //});
+               .AddAzureADB2C(options => Configuration.Bind("AzureADB2C", options));
 
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -70,8 +58,10 @@ namespace CareStream.WebApp
             services.AddScoped<IGroupOwnerService, GroupOwnerService>();
             services.AddScoped<IUserGroupService, UserGroupService>();
             services.AddScoped<IUserAttributeService, UserAttributeService>();
+            services.AddScoped<IBulkOperationService, BulkOperationService>();
+            services.AddScoped<IPermissionService, PermissionService>();
             services.AddSingleton<ILoggerManager, LoggerManager>();
-            services.AddSingleton(provider => GetScheduler().Result);
+            /*services.AddSingleton(provider => GetScheduler().Result);*/
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -86,7 +76,6 @@ namespace CareStream.WebApp
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
@@ -108,7 +97,7 @@ namespace CareStream.WebApp
 
             _scheduler = app.ApplicationServices.GetService<IScheduler>();
 
-            SetupAndRunSchedulerJob();
+            /*SetupAndRunSchedulerJob();*/
         }
 
         private async Task<IScheduler> GetScheduler()
@@ -131,8 +120,7 @@ namespace CareStream.WebApp
             };
             var schedulerFactory = new StdSchedulerFactory(properties);
             var scheduler = await schedulerFactory.GetScheduler();
-            //await scheduler.Start();
-            //update for test
+            await scheduler.Start();
             return scheduler;
         }
 

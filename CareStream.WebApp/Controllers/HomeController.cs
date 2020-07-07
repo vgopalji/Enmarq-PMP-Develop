@@ -14,7 +14,10 @@ namespace CareStream.WebApp.Controllers
             {
                 return RedirectToAction("UsersList", "Users");
             }
-            return View();
+            else
+            {
+                return RedirectToAction("SignIn", "Account", new { area = "AzureADB2C" });
+            }
         }
     }
 }

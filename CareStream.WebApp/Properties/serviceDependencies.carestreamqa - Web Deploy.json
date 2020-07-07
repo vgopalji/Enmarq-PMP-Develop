@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroup')]/providers/Microsoft.Sql/servers/care-stream/databases/CareStream.WebApp_db",
+      "type": "mssql.azure",
+      "connectionId": "CareStremConnection",
+      "secretStore": "AzureAppSettings"
+    }
+  }
+}

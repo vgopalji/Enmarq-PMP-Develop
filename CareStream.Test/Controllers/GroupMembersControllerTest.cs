@@ -47,7 +47,7 @@ namespace CareStream.Test.Controllers
             _groupMembersController.TempData = tempData;
 
             // Act
-            var result = await _groupMembersController.AddMemberAsync(new List<string> { "test" });
+            var result = await _groupMembersController.AddMemberAsync("test", new List<string> { "test" });
 
             // Assert
             Assert.IsType<RedirectToActionResult>(result);

@@ -1,0 +1,55 @@
+﻿@model List<CareStream.Models.BulkFile.UserFile>;
+@{
+    ViewData["Title"] = "FilesUploaded";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#filetbl').DataTable({
+            "language": {
+                "search": "",
+                "searchPlaceholder": "Search User Name",
+            },
+            "bLengthChange": false,
+            "fixedHeader": {
+                "footer": false
+            }
+        });
+        unBlockUi();
+    });
+</script>
+
+<h1>Files Uploaded</h1>
+
+@Html.AntiForgeryToken()
+
+<div class="container">
+    <table id="filetbl" class="table table-striped border">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-controller="BulkOperations" asp-action="Users" asp-route-id="@item.Id" class="text-dark" onclick="blockUi();">
+
+                            @Html.DisplayFor(modelItem => item.FileName)
+                        </a>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Action)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

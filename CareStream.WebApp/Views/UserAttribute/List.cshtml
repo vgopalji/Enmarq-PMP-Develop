@@ -1,77 +1,79 @@
-﻿@model List<CareStream.Models.ExtensionModel>
+﻿@model CareStream.Models.UserAttributeModel
 @{
     ViewData["Title"] = "List";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container no-gutter border-bottom mb-4">
-    <div class="row">
-        <nav class="navbar navbar-expand-lg navbar-light pt-0 pb-0">
-            <a class="navbar-brand" href="#"></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="nav-tabs navbar-nav">
-                    <li class="nav-item active col-4">
-                        <a class="nav-link font-weight-bold" href="#" id="createAttrib">
-                            <i class="fa fa-plus" aria-hidden="true"></i>  Create
-                            <span class="sr-only">(current)</span>
-                        </a>
-                    </li>
-                    <li class="nav-item col-4">
-                        <a class="nav-link font-weight-bold disabled" href="#" id="deleteAttrib">
-                            <i class="fa fa-trash" aria-hidden="true"></i> Delete
-                        </a>
-                    </li>
-                    <li class="nav-item col-4">
-                        <a class="nav-link font-weight-bold" href="#" id="importData">
-                            <i class="fa fa-upload" aria-hidden="true"></i> Import Data
-                        </a>
-                    </li>
-                    <li class="nav-item col-4">
-                        <a class="nav-link font-weight-bold" href="#" id="exportData">
-                            <i class="fa fa-download" aria-hidden="true"></i> Export Data
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </div>
-</div>
 
-<div class="container">
-    <div class="row ">
-        <table id="example" class="table table-striped table-bordered" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Data Type</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.DataType)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                </tr>
-                }
-                <tr>
-                </tr>
-            </tbody>
-        </table>
+    <div class="container">
+        <div class="row ">
+            <table id="example" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Data Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Properties != null && Model.Properties.Count > 0)
+                    {
+                        foreach (var item in Model.Properties)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DataType)
+                                </td>
+                            </tr>
+                        }
+                    }
+                    <tr>
+                    </tr>
+                </tbody>
+            </table>
 
+        </div>
+
+        <div class="row ">
+            <form method="post" action="/UserAttribute/Create">
+                <div id="schema-attrs-container">
+                    <input type="hidden" asp-for="TargetObjects" value="user" />
+                    <div class="form-group row mb-6">
+                        <label for="staticname" class="col-sm-1 col-form-label">
+                            Name
+                        </label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" asp-for="Property.Name" id="name" placeholder="Enter Name">
+                        </div>
+                        <label for="staticdatatype" class="col-sm-1 col-form-label">
+                            Data Type
+                        </label>
+                        <div class="col-sm-5">
+                            @Html.DropDownListFor(x => x.Property.DataType, (SelectList)ViewData["DataType"],
+                                              new { style = "-webkit-appearance: menulist !important;width:300px", @class = "form-control" })
+
+                        </div>
+                    </div>
+                    <br />
+                    <div class="form-group row mb-3">
+                        <div class="col-sm-4">
+                            <button type="submit" class="btn btn-primary text-white" onclick="blockUi();">Submit</button>
+                        </div>
+                    </div>
+                    <br />
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        unBlockUi();
+        if ('@(Model == null || Model.Properties == null || Model.Properties.Count <= 0)'=='True')
+            toggleNoDataFound(false);
+    });
+</script>
 
 
 

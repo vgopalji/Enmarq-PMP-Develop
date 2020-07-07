@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Graph;
+using CareStream.WebApp.Extensions;
 
 namespace CareStream.WebApp.Controllers
 {
@@ -18,11 +19,13 @@ namespace CareStream.WebApp.Controllers
     {
         private readonly ILoggerManager _logger;
         private readonly IUserService _userService;
+        private readonly IUserAttributeService _userAttributeService;
 
-        public UsersController(IUserService userService, ILoggerManager logger)
+        public UsersController(IUserService userService, ILoggerManager logger, IUserAttributeService userAttributeService)
         {
             _logger = logger;
             _userService = userService;
+            _userAttributeService = userAttributeService;
         }
 
         public async Task<IActionResult> UsersList()
@@ -99,6 +102,7 @@ namespace CareStream.WebApp.Controllers
                 var userTypeItems = new SelectList(new List<SelectListItem>());
                 var languageItems = new SelectList(new List<SelectListItem>());
                 var userBusDepartmentItems = new SelectList(new List<SelectListItem>());
+                var userAttributes = new SelectList(new List<SelectListItem>());
                 #endregion
 
                 var taskUserModel = await GetUserDropDown();
@@ -139,149 +143,18 @@ namespace CareStream.WebApp.Controllers
 
                     #endregion
 
-                    #region Roles 
+                    #region UserAttributes 
 
-                    if (userDropDownModel.UserRoles != null)
-                    {
-                        var itemList = new List<SelectListItem>();
-                        foreach (var role in userDropDownModel.UserRoles)
+                    var attributes = new List<UserType>();
+                    var schemaAttributes = await _userAttributeService.GetUserAttribute();
+                    schemaAttributes.Properties.ForEach(ext => {
+                        attributes.Add(new UserType
                         {
-                            try
-                            {
-                                var roleListItem = new SelectListItem
-                                {
-                                    Text = role.Value,
-                                    Value = role.Key
-                                };
+                            Key = ext.Name,
+                            Value = ext.DataType
+                        });
 
-                                itemList.Add(roleListItem);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine("Error while assign role for key {0}", role.Key);
-                                Console.WriteLine(ex);
-                            }
-                        }
-
-                        roleItems = new SelectList(itemList, "Value", "Text");
-                    }
-
-                    #endregion
-
-                    #region User Location 
-
-                    if (userDropDownModel.UserLocation != null)
-                    {
-                        var itemList = new List<SelectListItem>();
-                        foreach (var location in userDropDownModel.UserLocation)
-                        {
-                            try
-                            {
-                                var locationListItem = new SelectListItem
-                                {
-                                    Text = location.CountryName,
-                                    Value = location.CountryCode
-                                };
-
-                                itemList.Add(locationListItem);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine("Error while assign user location for key {0}", location.CountryCode);
-                                Console.WriteLine(ex);
-                            }
-                        }
-
-                        userLocationItems = new SelectList(itemList, "Value", "Text");
-                    }
-
-                    #endregion
-
-                    #region User Types 
-
-                    if (userDropDownModel.UserTypes != null)
-                    {
-                        var itemList = new List<SelectListItem>();
-                        foreach (var userType in userDropDownModel.UserTypes)
-                        {
-                            try
-                            {
-                                var userTypeListItem = new SelectListItem
-                                {
-                                    Text = userType.Value,
-                                    Value = userType.Key
-                                };
-
-                                itemList.Add(userTypeListItem);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine("Error while assign user type for key {0}", userType.Key);
-                                Console.WriteLine(ex);
-                            }
-                        }
-
-                        userTypeItems = new SelectList(itemList, "Value", "Text");
-                    }
-
-                    #endregion
-
-                    #region Langauage
-
-                    if (userDropDownModel.UserLanguages != null)
-                    {
-                        var itemList = new List<SelectListItem>();
-                        foreach (var langauage in userDropDownModel.UserLanguages)
-                        {
-                            try
-                            {
-                                var langauageListItem = new SelectListItem
-                                {
-                                    Text = langauage.Value,
-                                    Value = langauage.Key
-                                };
-
-                                itemList.Add(langauageListItem);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine("Error while assign user langauage for key {0}", langauage.Key);
-                                Console.WriteLine(ex);
-                            }
-                        }
-
-                        languageItems = new SelectList(itemList, "Value", "Text");
-                    }
-
-                    #endregion
-
-                    #region User Business Department
-
-                    if (userDropDownModel.UserBusinessDepartments != null)
-                    {
-                        var itemList = new List<SelectListItem>();
-                        foreach (var userBusinessDepartment in userDropDownModel.UserBusinessDepartments)
-                        {
-                            try
-                            {
-                                var userBusinessDepartmentListItem = new SelectListItem
-                                {
-                                    Text = userBusinessDepartment.Value,
-                                    Value = userBusinessDepartment.Key
-                                };
-
-                                itemList.Add(userBusinessDepartmentListItem);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine("Error while assign user business department for key {0}", userBusinessDepartment.Key);
-                                Console.WriteLine(ex);
-                            }
-                        }
-
-                        userBusDepartmentItems = new SelectList(itemList, "Value", "Text");
-                    }
-
+                    });
                     #endregion
 
                     ViewData["Group"] = gItems;
@@ -290,6 +163,7 @@ namespace CareStream.WebApp.Controllers
                     ViewData["UserType"] = userTypeItems;
                     ViewData["Language"] = languageItems;
                     ViewData["UserBusDep"] = userBusDepartmentItems;
+                    ViewData["UserAttributes"] = attributes;
                 }
             }
             catch (Exception ex)
@@ -300,11 +174,11 @@ namespace CareStream.WebApp.Controllers
 
         }
 
-        public async Task<IActionResult> GetFilteredUsers(string filter)
+        public async Task<IActionResult> GetFilteredUsers(string id)
         {
-            var usersModel = await _userService.GetFilteredUsers(filter);
+            var usersModel = await _userService.GetFilteredUsers(id);
 
-            return View("UsersList", usersModel);
+            return RedirectToAction("UsersList", usersModel);
         }
 
         public async Task<IActionResult> GetUsers()
@@ -328,7 +202,25 @@ namespace CareStream.WebApp.Controllers
             {
                 await BindViewDataForUser();
 
+                if ("me".Equals(id))
+                    id = this.User.GetEmail();
+
                 var userModel = await _userService.GetUser(id);
+               
+                #region UserAttributes 
+
+                var attributes = new List<UserType>();
+                var schemaAttributes = await _userAttributeService.GetUserAttribute();
+                schemaAttributes.Properties.ForEach(ext => {
+                    attributes.Add(new UserType
+                    {
+                        Key = ext.Name,
+                        Value = ext.DataType
+                    });
+
+                });
+                ViewData["UserAttributes"] = attributes;
+                #endregion
                 userViewModel.UserModel = userModel;
                 return View(userViewModel);
             }
@@ -339,6 +231,11 @@ namespace CareStream.WebApp.Controllers
             }
 
             return View("Edit", userViewModel);
+        }
+
+        public IActionResult ResetPassword()
+        {
+            return RedirectToAction("ResetPassword", "Account", new { area = "AzureADB2C" });
         }
 
         #region User 

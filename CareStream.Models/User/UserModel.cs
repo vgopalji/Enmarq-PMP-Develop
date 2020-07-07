@@ -148,14 +148,14 @@ namespace CareStream.Models
         [JsonProperty(PropertyName = "signInName", NullValueHandling = NullValueHandling.Ignore)]
         [Required(ErrorMessage = "Email ID is Required")]
         [DataType(DataType.EmailAddress)]
-        [MaxLength(50, ErrorMessage = "Only 50 chars allowed.")]
-        [RegularExpression(@"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}", ErrorMessage = "Please enter valid Email")]
+        [MaxLength(150, ErrorMessage = "Only 50 chars allowed.")]
+        [RegularExpression(@"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}", ErrorMessage = "Please enter valid Email")]
         public string SignInName { get; set; }
 
         [JsonProperty(PropertyName = "businessemail", NullValueHandling = NullValueHandling.Ignore)]
         [DataType(DataType.EmailAddress)]
-        [MaxLength(50, ErrorMessage = "Only 50 chars allowed.")]
-        [RegularExpression(@"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}", ErrorMessage = "Please enter valid Email")]
+        [MaxLength(150, ErrorMessage = "Only 50 chars allowed.")]
+        [RegularExpression(@"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}", ErrorMessage = "Please enter valid Email")]
         public string BusinessEmail { get; set; }
 
         [JsonProperty(PropertyName = "region", NullValueHandling = NullValueHandling.Ignore)]
@@ -218,6 +218,8 @@ namespace CareStream.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "passwordoptions", Required = Required.Default)]
         public List<PasswordOption> PasswordOptions { get; set; }
+
+        public List<UserType> AdditionalData { get; set; }
 
 
         public override string ToString()

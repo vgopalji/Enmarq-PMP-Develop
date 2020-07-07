@@ -5,41 +5,27 @@ using System.Threading.Tasks;
 using CareStream.Models;
 using CareStream.Utility;
 using Microsoft.AspNetCore.Mvc;
+using CareStream.LoggerService;
 using Microsoft.Graph;
+using CareStream.WebApp.Extensions;
 
 namespace CareStream.WebApp.Controllers
 {
     public class AccountsController : Controller
     {
-        public async Task<IActionResult> Index(string Id)
+        private readonly ILoggerManager _logger;
+        private readonly IUserService _userService;
+
+        public AccountsController(IUserService userService, ILoggerManager logger)
         {
-            var user = new User();
+            _logger = logger;
+            _userService = userService;
+        }
 
-            var client = GraphClientUtility.GetGraphServiceClient();
-
-            if (client == null)
-            {
-                return Ok(user);
-            }
-
-            //user = await client.Users[Id].Request().GetAsync();
-            try
-            {
-
-                user = await client
-                   .Users[Id]
-                   .Request()
-                   .GetAsync();
-
-                var extensions = await client.Users[Id].Extensions.Request().GetAsync();
-                user.Extensions = extensions;
-            }
-            catch (Exception ex)
-            {
-
-            }
-            return View(user);
-
+        public async Task<IActionResult> Index()
+        {
+            var user = Ok(await _userService.GetUser(this.User.GetEmail()));
+            return View(user.Value);
         }
     }
 }

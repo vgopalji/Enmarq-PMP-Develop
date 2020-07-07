@@ -1,0 +1,126 @@
+﻿@model CareStream.Models.RolesAndPermissions.RolePermissionModel
+
+@{
+    ViewData["Title"] = "Update";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Update Roles & Permissions</h1>
+
+<h4>Permissions</h4>
+<hr />
+<div class="row">
+
+</div>
+<div class="row">
+    <div class="col-md-9" style="padding-left:50px;">
+        <form asp-action="Update">
+            <input type="hidden" name="PermissionAction" id="PermissionAction" value="Save" />
+            <div class="form-group row mb-3" style="padding-left:20px;">
+                <label for="staticGroups" class="col-sm-1 col-form-label">
+                    Users
+                </label>
+                <div class="col-sm-6">
+                    @Html.DropDownListFor(x => x.UserId, (SelectList)TempData["Users"],
+                   new { style = "-webkit-appearance: menulist !important;width:300px", id = "users-list", @class = "form-control" })
+                </div>
+            </div>
+            <br />
+            <div class="container">
+                <table id="usertbl" class="table table-striped border">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Read</th>
+                            <th>Write</th>
+                            <th>Read Write</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (TempData["Roles"] != null)
+                        {
+                            var roles = (List<CareStream.Models.RolesAndPermissions.RoleModel>)TempData["Roles"];
+                            var index = 0;
+                            foreach (var role in roles)
+                            {
+                                var permission = Model.Permissions.FirstOrDefault(x => x.RoleId == role.RoleId);
+                                if (permission == null)
+                                    permission = new CareStream.Models.RolesAndPermissions.PermissionModel
+                                    {
+                                        RoleId = role.RoleId,
+                                        Read = false,
+                                        Write = false,
+                                        ReadWrite = false,
+                                        Delete = false
+                                    };
+                                <tr>
+                                    <td>
+                                        <label asp-for="@permission.RoleId" class="control-label">@role.RoleSection</label>
+                                        <input value="@permission.RoleId" type="hidden" name="Permissions[@index].RoleId" />
+                                        <input value="@permission.PermissionId" type="hidden" name="Permissions[@index].PermissionId" />
+                                    </td>
+                                    <td>
+
+                                        <div class="form-group form-check">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input" name="Permissions[@index].Read" value="@(permission.Read?"true":"false")" checked="@permission.Read" />
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group form-check">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input" name="Permissions[@index].Write" value="@(permission.Write?"true":"false")" checked="@permission.Write" />
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group form-check">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input" name="Permissions[@index].ReadWrite" value="@(permission.ReadWrite?"true":"false")" checked="@permission.ReadWrite" />
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group form-check">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input" name="Permissions[@index].Delete" value="@(permission.Delete?"true":"false")" checked="@permission.Delete" />
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                index++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <br />
+            <div class="form-group" style="text-align:center;">
+                <input type="submit" value="Save" class="btn btn-primary text-white" onclick="blockUi();" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#PermissionAction').val('Save');
+        $('#users-list').on('change', function (event) {
+            blockUi();
+            $('#PermissionAction').val('GET');
+            var form = $(event.target).parents('form');
+
+            form.submit();
+        });
+
+        $('input[type="checkbox"]').click(function (event) {
+            $(this).val($(this).prop('checked'))
+        });
+
+        unBlockUi();
+    });
+
+</script>

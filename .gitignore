@@ -338,3 +338,5 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/CareStream.Scheduler/Migrations/20200618073431_20200602072655_Initial_Migration.cs.Designer.cs
+/CareStream.Scheduler/Migrations/20200618073431_20200602072655_Initial_Migration.cs.cs

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CareStream.LoggerService;
 using CareStream.Models;
@@ -10,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CareStream.WebApp.Controllers
 {
-    public class GroupMembersController : Controller
+    public class GroupMembersController : BaseController
     {
         private readonly ILoggerManager _logger;
         private readonly IGroupMemberService _groupMemberService;
@@ -43,13 +44,13 @@ namespace CareStream.WebApp.Controllers
                 _logger.LogError($"GroupMembersController-Index: Exception occurred .....");
                 _logger.LogError(ex);
             }
-            
+
             return View(new GroupMemberModel());
         }
-        
-        public async Task<ActionResult> AddMemberAsync(List<string> selectedMember)
+
+        public async Task<ActionResult> AddMemberAsync(string addMemberGroupId, List<string> selectedMember)
         {
-            var groupId = TempData["GroupId"];
+            var groupId = TempData["GroupId"] != null ? TempData["GroupId"].ToString() : addMemberGroupId;
             try
             {
                 if (selectedMember != null)
@@ -64,7 +65,7 @@ namespace CareStream.WebApp.Controllers
                     }
                 }
 
-                return RedirectToAction(nameof(Index),new { id= groupId.ToString() });
+                return RedirectToAction(nameof(Index), new { id = groupId.ToString() });
             }
             catch (Exception ex)
             {
@@ -106,6 +107,20 @@ namespace CareStream.WebApp.Controllers
             }
 
             return RedirectToAction(nameof(Index), new { id = id });
+        }
+
+        public async Task<IActionResult> DownloadGroupMembers(string id)
+        {
+            var groupMembers = await _groupMemberService.GetGroupMembers(id);
+
+            var builder = new StringBuilder();
+            builder.AppendLine("displayName,UserPrincipal,mail,givenName");
+            foreach (var member in groupMembers.AssignedMembers)
+            {
+                builder.AppendLine($"{member.DisplayName}, {member.UserPrincipalName},{member.Mail},{member.GivenName}");
+            }
+
+            return File(Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", "GroupMember.csv");
         }
     }
 }

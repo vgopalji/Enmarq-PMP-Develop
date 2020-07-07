@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AspNetCore;
 using CareStream.LoggerService;
@@ -11,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CareStream.WebApp.Controllers
 {
-    public class GroupOwnersController : Controller
+    public class GroupOwnersController : BaseController
     {
         private readonly ILoggerManager _logger;
         private readonly IGroupOwnerService _groupOwnerService;
@@ -47,9 +48,9 @@ namespace CareStream.WebApp.Controllers
             return View(new GroupOwnerModel());
         }
 
-        public async Task<ActionResult> AddOwnerAsync(List<string> selectedOwner)
+        public async Task<ActionResult> AddOwnerAsync(string addOwnerGroupId, List<string> selectedOwner)
         {
-            var groupId = TempData["GroupId"];
+            var groupId = TempData["GroupId"] != null ? TempData["GroupId"].ToString() : addOwnerGroupId;
             try
             {
                 if (selectedOwner != null)
@@ -109,5 +110,20 @@ namespace CareStream.WebApp.Controllers
 
             return RedirectToAction(nameof(Index), new { id });
         }
+
+        public async Task<IActionResult> DownloadGroupOwners(string id)
+        {
+            var groupOwners = await _groupOwnerService.GetGroupOwners(id);
+
+            var builder = new StringBuilder();
+            builder.AppendLine("displayName,UserPrincipal,mail,givenName");
+            foreach (var Owners in groupOwners.AssignedOwners)
+            {
+                builder.AppendLine($"{Owners.DisplayName}, {Owners.UserPrincipalName},{Owners.Mail},{Owners.GivenName}");
+            }
+
+            return File(Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", "GroupOwners.csv");
+        }
     }
+
 }

@@ -217,7 +217,8 @@ namespace CareStream.Utility
                                 SelectedOwners = groupModel.OwnerSelected
                             };
 
-                            await _groupOwnerService.AddGroupOwners(groupOwnerAssign);
+                            var groupOwnerService = new GroupOwnerService(_logger);
+                            await groupOwnerService.AddGroupOwners(groupOwnerAssign);
 
                             _logger.LogInfo($"GroupService-CreateGroup: assigned {groupModel.OwnerSelected.Count()} owner(s) for group {newGroupModel.DisplayName} in Azure AD B2C");
                         }
@@ -232,7 +233,8 @@ namespace CareStream.Utility
                                 SelectedMembers = groupModel.MemberSelected
                             };
 
-                            await _groupMemberService.AddGroupMembers(groupMemberAssign);
+                            var groupMemberService = new GroupMemberService(null);
+                            await groupMemberService.AddGroupMembers(groupMemberAssign);
 
                             _logger.LogInfo($"GroupService-CreateGroup: assigned {groupModel.MemberSelected.Count()} member(s) for group {newGroupModel.DisplayName} in Azure AD B2C");
                         }
@@ -352,6 +354,7 @@ namespace CareStream.Utility
                         {
                             _logger.LogError($"GroupService-GetGroups: failed to add group for group name {groupItem.DisplayName}");
                             _logger.LogError(ex);
+                            throw ex;
                         }
 
                     }
@@ -408,6 +411,7 @@ namespace CareStream.Utility
             {
                 _logger.LogError("GroupService-BuildGroup: Exception occured....");
                 _logger.LogError(ex);
+                throw ex;
             }
 
             return retVal;

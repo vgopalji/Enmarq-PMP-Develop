@@ -94,7 +94,7 @@ namespace CareStream.Utility
 
         #region API Helper
 
-        public User BuildUserForCreation(UserModel userModel, string tenantId, string b2cExtensionAppClientId)
+        public User BuildUserForCreation(UserModel userModel, string tenantId)
         {
             User newUser = null;
             try
@@ -126,8 +126,7 @@ namespace CareStream.Utility
 
                 var mailNickName = string.IsNullOrEmpty(nickName) ? newUser.DisplayName : nickName;
 
-                if (!string.IsNullOrEmpty(userModel.UserPrincipalName))
-                    newUser.UserPrincipalName = userModel.UserPrincipalName;
+                newUser.UserPrincipalName = userModel.UserPrincipalName;
 
                 newUser.MailNickname = mailNickName;
                 newUser.UsageLocation = userModel.UsageLocation;
@@ -149,7 +148,8 @@ namespace CareStream.Utility
 
                 newUser.MobilePhone = userModel.MobilePhone;
                 //newUser.MySite = userModel.WebSite;
-                newUser.Mail = userModel.BusinessEmail;
+                newUser.Mail = userModel.SignInName;
+                newUser.UserPrincipalName = $"{newUser.MailNickname}@{GraphClientUtility.Domain}";
 
                 if (!string.IsNullOrEmpty(userModel.BusinessPhone))
                     newUser.BusinessPhones = new List<string> { userModel.BusinessPhone };
@@ -176,21 +176,13 @@ namespace CareStream.Utility
                     ForceChangePasswordNextSignIn = userModel.ForceChangePasswordNextSignIn
                 };
 
-                if (userModel.CustomAttributes != null)
-                {
-                    if (userModel.CustomAttributes.Any())
-                    {
-                        var extensionInstance = BulidCustomExtension(b2cExtensionAppClientId, userModel.CustomAttributes);
-                        newUser.AdditionalData = extensionInstance;
-                    }
-                }
-
                 _logger.LogInfo($"UserService-BuildUserForCreation: Completed building User Object for {userModel.SignInName}");
             }
             catch (Exception ex)
             {
                 _logger.LogError("UserService-BuildUserForCreation: Exception occured....");
                 _logger.LogError(ex);
+                throw ex;
             }
             return newUser;
         }
@@ -200,6 +192,7 @@ namespace CareStream.Utility
             User updateUser = null;
             try
             {
+               
                 if (userModel == null)
                 {
                     _logger.LogError("UserService-BuildUserForUpdate: Input value cannot be null");
@@ -212,6 +205,22 @@ namespace CareStream.Utility
                 var nickName = getMailNickName(userModel.GivenName, userModel.Surname);
 
                 updateUser = new User();
+                updateUser.Id = userModel.Id;
+                updateUser.Identities = new List<ObjectIdentity>
+                {
+                        new ObjectIdentity()
+                        {
+                            SignInType =  CareStreamConst.UserSignInType_UserPrincipalName,
+                            Issuer = GraphClientUtility.Domain,
+                            IssuerAssignedId = userModel.UserPrincipalName
+                        },
+                        new ObjectIdentity()
+                        {
+                            SignInType =  CareStreamConst.UserSignInType_EmailAddress,
+                            Issuer = GraphClientUtility.Domain,
+                            IssuerAssignedId = userModel.SignInName
+                        }
+                };
 
                 if (!string.IsNullOrEmpty(userModel.GivenName))
                 {
@@ -243,9 +252,9 @@ namespace CareStream.Utility
                     updateUser.UsageLocation = userModel.UsageLocation;
                 }
 
-                if (!string.IsNullOrEmpty(userModel.UserPrincipalName))
+                if (!string.IsNullOrEmpty(userModel.SignInName))
                 {
-                    updateUser.UserPrincipalName = userModel.UserPrincipalName;
+                    updateUser.UserPrincipalName = userModel.SignInName;
                 }
 
                 if (!string.IsNullOrEmpty(userModel.JobTitle))
@@ -321,15 +330,6 @@ namespace CareStream.Utility
                     };
                 }
 
-
-                if (userModel.CustomAttributes != null)
-                {
-                    if (userModel.CustomAttributes.Any())
-                    {
-                        var extensionInstance = BulidCustomExtension(b2cExtensionAppClientId, userModel.CustomAttributes);
-                        updateUser.AdditionalData = extensionInstance;
-                    }
-                }
                 #endregion
 
                 _logger.LogInfo($"UserService-BuildUserForCreation: Completed building User Object for {userModel.SignInName}");
@@ -338,6 +338,7 @@ namespace CareStream.Utility
             {
                 _logger.LogError("UserService-BuildUserForCreation: Exception occured....");
                 _logger.LogError(ex);
+                throw ex;
             }
             return updateUser;
         }
@@ -426,6 +427,7 @@ namespace CareStream.Utility
             {
                 _logger.LogError("UserService-AssignGroupsToUser: Exception occured....");
                 _logger.LogError(ex);
+                throw ex;
             }
         }
 
@@ -462,7 +464,7 @@ namespace CareStream.Utility
                                 }),
                      Task.Run(() => retVal.UserTypes = GetUserTypes()),
                      Task.Run(() => retVal.UserLanguages = GetUserLanguage()),
-                     Task.Run(() =>  retVal.UserBusinessDepartments = GetUserBusinessDepartments()),
+                     Task.Run(() =>  retVal.UserBusinessDepartments = GetUserBusinessDepartments())
                 };
 
                 await Task.WhenAll(loadUserDropDownTasks);
@@ -472,6 +474,7 @@ namespace CareStream.Utility
                 retVal = null;
                 _logger.LogError("UserService-GetUserDropDownAsync: Exception occured....");
                 _logger.LogError(ex);
+                throw ex;
             }
             return retVal;
         }
@@ -488,9 +491,11 @@ namespace CareStream.Utility
             {
                 _logger.LogError("UserService-GetRandomPassword: Exception occured....");
                 _logger.LogError(ex);
+                throw ex;
             }
             return retVal;
         }
+
         public UserDropDownModel GetUserDropDown(GraphServiceClient client)
         {
             UserDropDownModel retVal = null;
@@ -542,6 +547,7 @@ namespace CareStream.Utility
                 retVal = null;
                 _logger.LogError("UserService-GetUserDropDown: Exception occured....");
                 _logger.LogError(ex);
+                throw ex;
             }
             return retVal;
         }
@@ -556,18 +562,25 @@ namespace CareStream.Utility
             {
                 return usersModel;
             }
-
-            var userList = await client.Users.Request().GetAsync();
-
-            if (userList != null)
+            try
             {
-                foreach (var user in userList)
+                var userList = await client.Users.Request().GetAsync();
+
+                if (userList != null)
                 {
-                    UserModel userModel = GraphClientUtility.ConvertGraphUserToUserModel(user, null);
-                    usersModel.Users.Add(userModel);
+                    foreach (var user in userList)
+                    {
+                        UserModel userModel = GraphClientUtility.ConvertGraphUserToUserModel(user, null);
+                        usersModel.Users.Add(userModel);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             return usersModel;
+
         }
 
         public async Task<UsersModel> GetDeletedUser()
@@ -633,61 +646,49 @@ namespace CareStream.Utility
 
             user.AutoGeneratePassword = string.IsNullOrEmpty(user.Password) ? true : false;
 
-            #region Custom Attributes
-
-            user.CustomAttributes = new Dictionary<string, string>();
-
-            if (user.RolesAA != null)
-            {
-                if (user.RolesAA.Any())
-                {
-                    user.Roles_C = string.Join(CareStreamConst.Pipe, user.RolesAA);
-                    user.CustomAttributes.Add(CareStreamConst.Roles_C, user.Roles_C);
-                }
-            }
-
-            if (user.UserTypeAA != null)
-            {
-                if (user.UserTypeAA.Any())
-                {
-                    user.UserType_C = string.Join(CareStreamConst.Pipe, user.UserTypeAA);
-                    user.CustomAttributes.Add(CareStreamConst.UserType_C, user.UserType_C);
-                }
-            }
-
-            if (user.UserBusinessDepartmentAA != null)
-            {
-                if (user.UserBusinessDepartmentAA.Any())
-                {
-                    user.UserBusinessDepartment_C = string.Join(CareStreamConst.Pipe, user.UserBusinessDepartmentAA);
-                    user.CustomAttributes.Add(CareStreamConst.UserBusinessDepartment_C, user.UserBusinessDepartment_C);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(user.Language_C))
-            {
-                user.CustomAttributes.Add(CareStreamConst.Language_C, user.Language_C);
-            }
-
-            #endregion
-
-
             #endregion
 
             GraphServiceClient client = GraphClientUtility.GetGraphServiceClient();
 
 
-            var tenantId = GraphClientUtility.TenantId;
+            var tenantId = GraphClientUtility.Domain;
             var b2cExtensionAppClientId = GraphClientUtility.b2cExtensionAppClientId;
 
-            var newUser = BuildUserForCreation(user, tenantId, b2cExtensionAppClientId);
+            var newUser = BuildUserForCreation(user, tenantId);
 
-            var result = await client.Users.Request().AddAsync(newUser);
+            var createdUser =  await client.Users.Request().AddAsync(newUser);
 
-            if (result != null)
+            IDictionary<string, object> schemaExtensions = new Dictionary<string, object>();
+
+            #region Custom Attributes
+
+            var properties = await client.Applications[GraphClientUtility.AppObjectId].ExtensionProperties
+                          .Request()
+                          .GetAsync();
+
+            foreach (ExtensionProperty ext in properties.CurrentPage)
+            {
+                var names = ext.Name.Split('_');
+                var additional = user.AdditionalData.Where(attribute => attribute.Key == names[names.Length - 1]).ToList();
+                if (additional.Count > 0)
+                {
+                    schemaExtensions.Add(ext.Name, additional.FirstOrDefault().Value);
+                }
+
+            }
+
+            #endregion
+
+            var extension = await client.Users[createdUser.Id].Request().UpdateAsync(new User
+            {
+                AdditionalData = schemaExtensions
+
+            });
+
+            if (createdUser != null)
             {
 
-                newUser.Id = result.Id;
+                newUser.Id = createdUser.Id;
 
                 #region Assign group(s) 
 
@@ -696,7 +697,7 @@ namespace CareStream.Utility
                     if (user.Groups.Any())
                     {
 
-                        AssignGroupsToUser(client, result, user.Groups);
+                        AssignGroupsToUser(client, createdUser, user.Groups);
 
                     }
                 }
@@ -723,50 +724,46 @@ namespace CareStream.Utility
                     _logger.LogWarn(errorMessage);
                 }
 
-                #region Custom Attributes
-
-                user.CustomAttributes = new Dictionary<string, string>();
-
-                if (user.RolesAA != null)
-                {
-                    if (user.RolesAA.Any())
-                    {
-                        user.Roles_C = string.Join(CareStreamConst.Pipe, user.RolesAA);
-                        user.CustomAttributes.Add(CareStreamConst.Roles_C, user.Roles_C);
-                    }
-                }
-
-                if (user.UserTypeAA != null)
-                {
-                    if (user.UserTypeAA.Any())
-                    {
-                        user.UserType_C = string.Join(CareStreamConst.Pipe, user.UserTypeAA);
-                        user.CustomAttributes.Add(CareStreamConst.UserType_C, user.UserType_C);
-                    }
-                }
-
-                if (user.UserBusinessDepartmentAA != null)
-                {
-                    if (user.UserBusinessDepartmentAA.Any())
-                    {
-                        user.UserBusinessDepartment_C = string.Join(CareStreamConst.Pipe, user.UserBusinessDepartmentAA);
-                        user.CustomAttributes.Add(CareStreamConst.UserBusinessDepartment_C, user.UserBusinessDepartment_C);
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(user.Language_C))
-                {
-                    user.CustomAttributes.Add(CareStreamConst.Language_C, user.Language_C);
-                }
-
-                #endregion
-
                 var b2cExtensionAppClientId = GraphClientUtility.b2cExtensionAppClientId;
 
                 var userService = new UserService(_logger);
                 var updatingUser = userService.BuildUserForUpdate(user, b2cExtensionAppClientId);
 
+                var userAttributeService = new UserAttributeService(_logger);
+                var taskSchema = userAttributeService.GetIfExtensionExist(GraphClientUtility.ExtensionName);
+                var schemaName = taskSchema.Result.Id;
+                IDictionary<string, object> schemaExtensions = new Dictionary<string, object>();
+                schemaExtensions.Add(schemaName + "_isActiveUser", true);
+
+                //updatingUser.AdditionalData = schemaExtensions;
+                // var result = await client.Users[user.Id].Extensions.Request().AddAsync(new Extension { AdditionalData = schemaExtensions });
                 var result = await client.Users[user.Id].Request().UpdateAsync(updatingUser);
+
+
+                #region Custom Attributes
+
+                var properties = await client.Applications[GraphClientUtility.AppObjectId].ExtensionProperties
+                              .Request()
+                              .GetAsync();
+
+                foreach (ExtensionProperty ext in properties.CurrentPage)
+                {
+                    var names = ext.Name.Split('_');
+                    var additional = user.AdditionalData.Where(attribute => attribute.Key == names[names.Length - 1]).ToList();
+                    if (additional.Count > 0)
+                    {
+                        schemaExtensions.Add(ext.Name, additional.FirstOrDefault().Value);
+                    }
+
+                }
+
+                #endregion
+
+                var extension = await client.Users[result.Id].Request().UpdateAsync(new User
+                {
+                    AdditionalData = schemaExtensions
+
+                });
 
                 if (result == null)
                 {
@@ -778,6 +775,7 @@ namespace CareStream.Utility
             {
                 _logger.LogError($"User Update :error updating user for user id {user.Id}");
                 _logger.LogError(ex);
+                throw ex;
             }
         }
 
@@ -806,17 +804,59 @@ namespace CareStream.Utility
             {
                 var client = GraphClientUtility.GetGraphServiceClient();
 
-                var user = await client.Users[id].Request().GetAsync();
+                var extProperties = await client.Applications[GraphClientUtility.AppObjectId].ExtensionProperties
+                           .Request()
+                           .GetAsync();
 
-                var extensions = await client.Users[id].Extensions.Request().GetAsync();
-                user.Extensions = extensions;
+                var extnames = new List<string>();
+                foreach (ExtensionProperty name in extProperties.CurrentPage)
+                {
+                    extnames.Add(name.Name);
+
+                }
+
+                var user = await client.Users[id]
+                           .Request()
+                           .GetAsync();
+
+                //var user = await client.Users[id].Request().GetAsync();
+
+                //var extensions = await client.Users[id].Extensions.Request().GetAsync();
+
+
+                //user.Extensions = extensions;
 
                 userModel = GraphClientUtility.ConvertGraphUserToUserModel(user, null);
+
+                var schemaExtensions = new List<UserType>();
+                var properties = await client.Applications[GraphClientUtility.AppObjectId].ExtensionProperties
+                          .Request()
+                          .GetAsync();
+                var userattributes = await client.Users[id]
+                          .Request()
+                           .Select(string.Join(",", extnames))
+                          .GetAsync();
+                foreach (ExtensionProperty ext in properties.CurrentPage)
+                {
+                    var names = ext.Name.Split('_');
+                    var additional = userattributes.AdditionalData.Where(attribute => attribute.Key == ext.Name).ToList();
+                    if (additional.Count > 0)
+                    {
+                        schemaExtensions.Add(new UserType
+                        {
+                            Key = names[names.Length - 1],
+                            Value = additional.FirstOrDefault().Value.ToString()
+                        });
+                    }
+
+                }
+                userModel.AdditionalData = schemaExtensions;
                 userModel.SignInName = user.UserPrincipalName;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex);
+                throw ex;
             }
 
             return userModel;
@@ -1117,6 +1157,29 @@ namespace CareStream.Utility
             }
             return retVal;
         }
+
+        private List<UserType> GetUserAttributes()
+        {
+            return new List<UserType>
+                   {
+                        new UserType
+                        {
+                            Key = "Customer Name",
+                            Value = "String"
+                        },
+                        new UserType
+                        {
+                            Key = "Is Customer Satisfied",
+                            Value = "Boolean"
+                        },
+                         new UserType
+                        {
+                            Key = "Customer Salary",
+                            Value = "Integer"
+                        }
+                  };
+        }
+
         #endregion
 
     }
