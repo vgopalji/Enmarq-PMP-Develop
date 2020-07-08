@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewData["Title"] = "Upload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Bulk Dealer</h1>
+
+
+<div class="row ">
+    <form>
+        <div class="form-group row mb-3">
+            <label for="staticname" class="col-sm-2 col-form-label">
+                1. Download your csv file
+            </label>
+            <div class="col-sm-3">
+                <a class="btn btn-primary text-white" asp-controller="BulkUpload" asp-action="Download" asp-route-id="@TempData["action"]"> Download </a>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <label for="staticgrouptype" class="col-sm-2 col-form-label">
+                2. Edit your csv file
+            </label>
+            <div class="col-sm-6">
+            </div>
+        </div>
+    </form>
+
+    <form method="post" enctype="multipart/form-data"
+          asp-controller="Dealer" asp-action="FileUpload">
+
+        <div class="form-group row mb-3">
+            <label for="inputDescription" class="col-sm-2 col-form-label">3. Upload your csv file  </label>
+            <div class="col-sm-6 ">
+                <div class="custom-file mb-3">
+                    <input type="file" class="custom-file-input" id="customFile" name="files" multiple>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+
+            <div class="form-group row mb-3">
+                <div class="col-sm-8 text-right">
+                    <input type="submit" value="Upload" class="btn btn-primary text-white" />
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+
+    @*<form>
+            <a class="btn btn-primary text-white" asp-controller="BulkUpload" asp-action="Process"> Run Bulk Process </a>
+        </form>*@
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () { unBlockUi(); });
+</script>

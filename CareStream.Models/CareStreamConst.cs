@@ -5,6 +5,7 @@
         public const string Owner = "Owner";
         public const string Member = "Member";
         public const string GroupMember = "Group_Member";
+        public const string DealerProductFamily = "Dealer_ProductFammily";
         public const string GroupOwner = "Group_Owner";
         public const string UserSignInType_UserPrincipalName = "UserPrincipalName";
         public const string UserSignInType_EmailAddress = "EmailAddress";
@@ -15,7 +16,7 @@
         public const string Bearer = "Bearer";
         public const string Json = "json";
         public const string Application_Json = "application/json";
-
+        public const string Dealer = "Dealer";
 
         public const string Dash = "-";
         public const string Underscore = "_";

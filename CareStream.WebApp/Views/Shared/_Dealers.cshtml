@@ -1,0 +1,38 @@
+﻿@*@model CareStream.Models.ProductFamilyViewModel
+
+<header class="bs-canvas-header p-3 text-white overflow-auto">
+    <h4 class="d-inline-block text-dark mb-0 float-left">Add Dealer</h4>
+</header>
+
+<div class="bs-canvas-content px-3 py-3">
+    <div class="container">
+        <div class="row ">
+            <table id="OffsetWizDiv" class="table table-striped border" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="width:13px !important"><input name="select_all" value="1" id="example-select-all" type="checkbox" /></th>
+                        <th>Dealer Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.DealerModelCosmos)
+                    {
+                        <tr>
+                            <td style="width:13px !important">
+                                <input type="checkbox" name="chkbox_Dealer-@item.DealerId" id="chkbox_Dealer-@item.DealerId" data-memberid="@item.DealerName" />
+                            </td>
+                            <td>
+                                <label style="text-wrap:normal">@item.DealerName</label>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>*@
+
+

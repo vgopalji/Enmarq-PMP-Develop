@@ -335,6 +335,98 @@ namespace CareStream.Utility
             return retVal;
         }
 
+
+        public static DeletedDealerModel ConvertDealerToDeleteDealer(DealerModel dealerModel, ILoggerManager logger)
+        {
+           
+
+            //if (dealerModel != null)
+            //{
+                DeletedDealerModel ddm = new DeletedDealerModel();
+
+                ddm.DealerId = dealerModel.DealerId;
+                ddm.DealerName = dealerModel.DealerName;
+                ddm.DealerDescription = dealerModel.DealerDescription;
+                ddm.SAPID = dealerModel.SAPID;
+                ddm.deletedDealerProductFamilyModels = new List<DeletedDealerProductFamilyModel>();
+
+                try
+                {
+                    foreach (var deltedPFM in dealerModel.assignedProductFamilyModels)
+                    {
+                        if (deltedPFM.ProductFamilyId != null)
+                        {
+                            var parseBranch = ParseProductFamilyToDeltePF(deltedPFM,logger);
+                            ddm.deletedDealerProductFamilyModels.Add(parseBranch);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("GraphClientUtility-ConvertGraphUserToUserModel: Exception occurred....");
+                    logger.LogError(ex);
+                }
+
+                return ddm;
+            //}
+
+
+        }
+    
+
+
+public static DeletedDealerProductFamilyModel ParseProductFamilyToDeltePF(AssignedProductFamilyModel productFamilyModel, ILoggerManager logger)
+{
+            DeletedDealerProductFamilyModel ddpf = null;
+    try
+    {
+        if (productFamilyModel != null)
+        {
+                    ddpf = new DeletedDealerProductFamilyModel
+            {
+                ProductFamilyId = productFamilyModel.ProductFamilyId,
+                ProductFamilyName = productFamilyModel.ProductFamilyName,
+                ProductDescription = productFamilyModel.ProductDescription              
+
+            };
+
+        }
+
+    }
+    catch (Exception ex)
+    {
+        logger.LogError("GraphClientUtility-ConvertGraphUserToUserModel: Exception occurred....");
+        logger.LogError(ex);
+    }
+    return ddpf;
+}
+
+        //public static DealerModelVm ConvertDealerToDealerVm(DealerModelCosmos dealerModel, ILoggerManager logger)
+        //{
+        //    DealerModelVm retVal = null;
+        //    try
+        //    {
+        //        if (dealerModel != null)
+        //        {
+        //            retVal = new DealerModelVm
+        //            {
+        //                DealerId = dealerModel.DealerId,
+        //                DealerName = dealerModel.DealerName,
+        //                DealerDescription = dealerModel.DealerDescription,
+        //                SAPID = dealerModel.SAPID,                       
+
+        //            };
+
+        //            }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError("GraphClientUtility-ConvertGraphUserToUserModel: Exception occurred....");
+        //        logger.LogError(ex);
+        //    }
+        //    return retVal;
+        //}
         #endregion
     }
 }

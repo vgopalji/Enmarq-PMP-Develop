@@ -24,6 +24,8 @@ using CareStream.LoggerService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using CareStream.Scheduler.PermissionService;
+using CareStream.Utility.Services;
+using CareStream.Utility.DealerService;
 
 namespace CareStream.WebApp
 {
@@ -35,14 +37,31 @@ namespace CareStream.WebApp
         {
             LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
             Configuration = configuration;
+            StaticConfig = configuration;
         }
 
         public IConfiguration Configuration { get; }
+        public static IConfiguration StaticConfig { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc().AddNToastNotifyToastr();
             CareStreamConst.CareStreamConnectionString = Configuration.GetConnectionString("CareStremConnection");
+            //cosmosDB // add this line to make sure that controllers can suppress the naming convention policy
+            services.AddControllers().AddJsonOptions(options => {
+                options.JsonSerializerOptions.PropertyNamingPolicy = null;
+            });
+
+            services.AddDbContext<CosmosDbContext>(options =>
+            {
+                options.UseCosmos(Configuration["CosmosDb:Account"].ToString(),
+                  Configuration["CosmosDb:Key"].ToString(),
+                   Configuration["CosmosDb:DatabaseName"].ToString());
+            });
+            //cosmosDB settings
+            //services.AddControllersWithViews();
+            //services.AddSingleton<ICosmosDbService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
 
             services.AddDbContext<CareStreamContext>(options =>
                     options.UseSqlServer(CareStreamConst.CareStreamConnectionString, x => x.MigrationsAssembly(typeof(CareStreamContext).GetTypeInfo().Assembly.GetName().Name)));
@@ -60,6 +79,8 @@ namespace CareStream.WebApp
             services.AddScoped<IUserAttributeService, UserAttributeService>();
             services.AddScoped<IBulkOperationService, BulkOperationService>();
             services.AddScoped<IPermissionService, PermissionService>();
+            services.AddScoped<IProductFamilyService, ProductFamilyService>();
+            services.AddScoped<IDealerService, DealerService>();
             services.AddSingleton<ILoggerManager, LoggerManager>();
             /*services.AddSingleton(provider => GetScheduler().Result);*/
         }
@@ -67,6 +88,7 @@ namespace CareStream.WebApp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseNToastNotify();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -150,5 +172,22 @@ namespace CareStream.WebApp
             arg.Response.Body.Write(Encoding.UTF8.GetBytes(s), 0, s.Length);
             return Task.FromResult(0);
         }
+        /// <summary>
+        /// Creates a Cosmos DB database and a container with the specified partition key. 
+        /// </summary>
+        /// <returns></returns>
+        //private static async Task<CosmosDBService> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)
+        //{
+        //    string databaseName = configurationSection.GetSection("DatabaseName").Value;
+        //    string containerName = configurationSection.GetSection("ContainerName").Value;
+        //    string account = configurationSection.GetSection("Account").Value;
+        //    string key = configurationSection.GetSection("Key").Value;
+        //    Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
+        //    CosmosDBService cosmosDBService = new CosmosDBService(client, databaseName, containerName);
+        //    Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
+        //    await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
+
+        //    return cosmosDBService;
+        //}
     }
 }

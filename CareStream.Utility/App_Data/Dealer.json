@@ -1,0 +1,76 @@
+{
+  "Dealers": [
+    {
+      "dealerId": "1",
+      "dealerName": "Test Dealer1",
+      "dealerDescription": "TestDealer Description1",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "2",
+      "dealerName": "Test Dealer2",
+      "dealerDescription": "TestDealer Description2",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "3",
+      "dealerName": "Test Dealer3",
+      "dealerDescription": "TestDealer Description3",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "4",
+      "dealerName": "Test Dealer4",
+      "dealerDescription": "TestDealer Description4",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "5",
+      "dealerName": "Test Dealer5",
+      "dealerDescription": "TestDealer Description4",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "6",
+      "dealerName": "Test Dealer6",
+      "dealerDescription": "TestDealer Description4",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "7",
+      "dealerName": "Test Dealer7",
+      "dealerDescription": "TestDealer Description4",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "8",
+      "dealerName": "Test Dealer8",
+      "dealerDescription": "TestDealer Description4",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "9",
+      "dealerName": "Test Dealer9",
+      "dealerDescription": "TestDealer Description4",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "10",
+      "dealerName": "Test Dealer98",
+      "dealerDescription": "TestDealer Description4",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "11",
+      "dealerName": "Test Dealer99",
+      "dealerDescription": "TestDealer Description4",
+      "SAPID": "63j3837jj338838440s"
+    },
+    {
+      "dealerId": "12",
+      "dealerName": "Test Dealer88",
+      "dealerDescription": "TestDealer Description4",
+      "SAPID": "63j3837jj338838440s"
+    }
+  ]
+}
