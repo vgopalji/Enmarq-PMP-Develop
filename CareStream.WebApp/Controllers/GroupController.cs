@@ -38,6 +38,7 @@ namespace CareStream.WebApp.Controllers
                 _logger.LogError("GroupController-Index: Exception occurred...");
                 _logger.LogError(ex);
                 return View("Index", new List<GroupModel>());
+                //comment
             }
 
             return View("Index", new List<GroupModel>());
