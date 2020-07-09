@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using CareStream.Models;
+using CareStream.Models.Dealer;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -16,6 +17,7 @@ namespace CareStream.Utility
         public DbSet<AssignedProductFamilyModel> assignedProductFamilyModels { get; set; }
         public DbSet<DeletedDealerModel> deletedDealerModels { get; set; }
         public DbSet<DeletedDealerProductFamilyModel> deletedDealerProductFamilyModels { get; set; }
+        public DbSet<FileDetails> fileDetails { get; set; }
         //public DbSet<DealerDeleted> dealerDeleted { get; set; }
 
 

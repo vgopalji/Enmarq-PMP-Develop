@@ -67,6 +67,13 @@
         public const string Bulk_User_Update = "Update";
         public const string Bulk_User_Delete = "Delete";
 
+        //Bulk File Action Dealer
+        public const string Bulk_Dealer_Action = "Action";
+        public const string Bulk_Dealer_Create = "Create";
+        public const string Bulk_Dealer_Invite = "Invite";
+        public const string Bulk_Dealer_Update = "Update";
+        public const string Bulk_Dealer_Delete = "Delete";
+
         public const string Bulk_User_UploadedBy = "Admin";
 
         //Bulk User Header

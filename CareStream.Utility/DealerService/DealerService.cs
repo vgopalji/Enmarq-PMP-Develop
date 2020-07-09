@@ -1,5 +1,6 @@
 ﻿using CareStream.LoggerService;
 using CareStream.Models;
+using CareStream.Models.Dealer;
 using CareStream.Utility.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Cosmos;
@@ -32,8 +33,11 @@ namespace CareStream.Utility.DealerService
         //Task<List<DealerModelVm>> GetAllDealerDetailsCosmos();
         //Task<DealerAssignVm> BuildProductDealer();
         Task<DealerModel> GetDealerById(string Id);
+       
         Task<List<DeletedDealerModel>> GetDeletedDealers();
         Task RemoveDealerPermanently(List<string> dealerIdsToDelete);
+        Task<bool> AddFileDetails(FileDetails fileDetails);
+        Task<List<FileDetails>> GetFileDetails();
     }
 
     //public class ProductFamilyService : CosmosDBService<ProductFamilyModel>, IProductFamilyService
@@ -291,28 +295,28 @@ namespace CareStream.Utility.DealerService
                 {
                     //using (var _cosmosDbContextTransaction = _cosmosDbContext.Database.BeginTransaction())
                     //{
-                        try
+                    try
+                    {
+                        _logger.LogInfo($"DealerService-RemoveDealer: [Started] removing Dealer for id [{id}] on Azure AD B2C");
+                        var dealer = await _cosmosDbContext.dealers.FindAsync(id);
+                        if (dealer != null)
                         {
-                            _logger.LogInfo($"DealerService-RemoveDealer: [Started] removing Dealer for id [{id}] on Azure AD B2C");
-                            var dealer = await _cosmosDbContext.dealers.FindAsync(id);
-                            if (dealer != null)
-                            {
-                                var res1 = GraphClientUtility.ConvertDealerToDeleteDealer(dealer, _logger);
-                                await _cosmosDbContext.deletedDealerModels.AddAsync(res1); ;
-                                _cosmosDbContext.SaveChanges();
-                                var res = _cosmosDbContext.dealers.Remove(dealer);
-                                _cosmosDbContext.SaveChanges();
-                                //_cosmosDbContextTransaction.Commit();
-                                _logger.LogInfo($"DealerService-RemoveDealer: [Completed] removed Dealer [{id}] on Azure AD B2C");
-                            }
+                            var res1 = GraphClientUtility.ConvertDealerToDeleteDealer(dealer, _logger);
+                            await _cosmosDbContext.deletedDealerModels.AddAsync(res1); ;
+                            _cosmosDbContext.SaveChanges();
+                            var res = _cosmosDbContext.dealers.Remove(dealer);
+                            _cosmosDbContext.SaveChanges();
+                            //_cosmosDbContextTransaction.Commit();
+                            _logger.LogInfo($"DealerService-RemoveDealer: [Completed] removed Dealer [{id}] on Azure AD B2C");
+                        }
 
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError($"DealerService-RemoveDealer: Exception occured while removing Dealer for id [{id}]");
-                            _logger.LogError(ex);
-                        }
                     }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"DealerService-RemoveDealer: Exception occured while removing Dealer for id [{id}]");
+                        _logger.LogError(ex);
+                    }
+                }
                 //}
             }
             catch (Exception ex)
@@ -361,9 +365,27 @@ namespace CareStream.Utility.DealerService
         {
             var dealersById = _cosmosDbContext.dealers.Where(d => d.DealerId == Id).SingleOrDefaultAsync();
             return dealersById;
+        }       
+        public async Task<bool> AddFileDetails(FileDetails fileDetails)
+        {
+            try
+            {
+               await _cosmosDbContext.fileDetails.AddAsync(fileDetails);
+                _cosmosDbContext.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+            //return true;
+
         }
-   
-    public Task<List<DeletedDealerModel>> GetDeletedDealers()
+        public Task<List<FileDetails>> GetFileDetails()
+        {
+            return _cosmosDbContext.fileDetails.ToListAsync();
+        }
+        public Task<List<DeletedDealerModel>> GetDeletedDealers()
         {
             return _cosmosDbContext.deletedDealerModels.ToListAsync();
             //return deletedDelaers

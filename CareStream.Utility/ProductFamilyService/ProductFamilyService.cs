@@ -23,16 +23,10 @@ namespace CareStream.Utility
     public interface IProductFamilyService : ICosmosDbService<ProductFamilyModel>
 
     {
-        //Task<List<ProductFamilyModel>> GetDetailProductFamilyList();
-        // Task<List<DealerAssignModel>> BuildProductDealer();
-
-        // Task<List<ProductFamilyModel>> CreateProductFamily(ProductFamilyModel productFamilyModel);
-
-        // Task RemoveGroup(List<string> groupIdsToDelete);
-
-        // List<DealerModel> GetDealerDetails();
+       
         Task<List<ProductFamilyModel>> getAllProductFamily();
         Task<ProductFamilyModel> getProductFamilyById(string Id);
+        Task<ProductFamilyModel> GetProductFamilyByName(string Name);
     }
 
     //public class ProductFamilyService : CosmosDBService<ProductFamilyModel>, IProductFamilyService
@@ -313,7 +307,7 @@ namespace CareStream.Utility
         //}
         //#endregion
 
-      public Task<List<ProductFamilyModel>> getAllProductFamily()
+        public Task<List<ProductFamilyModel>> getAllProductFamily()
         {
             var productFamily = _cosmosDbContext.productFamily.ToListAsync();
             return productFamily;
@@ -323,7 +317,12 @@ namespace CareStream.Utility
             var productFamily = _cosmosDbContext.productFamily.Where(d => d.ProductFamilyId == Id).SingleOrDefaultAsync();
             return productFamily;
         }
-
+        public async Task<ProductFamilyModel> GetProductFamilyByName(string Name)
+        {
+            var productFamilyByName =await  _cosmosDbContext.productFamily.ToListAsync();
+            var selectedProductFamily = productFamilyByName.FirstOrDefault(p => p.ProductFamilyName.ToLower() == Name.ToLower());
+            return selectedProductFamily;
+        }
     }
 }
 
