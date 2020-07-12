@@ -1,5 +1,11 @@
-﻿
-@model List<CareStream.Models.DeletedDealerModel>
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+@model List<CareStream.Models.DeletedProductFamily>
 
 @{
     ViewData["Title"] = "Dealer";
@@ -8,6 +14,7 @@
 
 <head>
 
+    </style>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -45,16 +52,18 @@
                                         <i class="fa fa-trash" aria-hidden="true"></i> Delete Permanently
                                     </button>
 
+                                    @*<span class="sr-only">(current)</span>*@
+
+                                    @*<button type="button" class="nav-link font-weight-bold" style="cursor:pointer" value="Delete" onclick="confirmDelete(true)">
+                                            <i class="fa fa-trash" aria-hidden="true"></i> Delete Permanently
+                                        </button>*@
                                 </li>
                                 <li class="nav-item col-3">
-                                    <a id="selectedDealerRestore" class="nav-link font-weight-bold" style="cursor:pointer" onclick="blockUi();">
-                                            <i class="fa fa-cloud-upload" aria-hidden="true"></i> Restore
-                                        </a>
-                                 
+                                    <a id="selectedPFRestore" class="nav-link font-weight-bold" style="cursor:pointer" onclick="blockUi();">
+                                        <i class="fa fa-cloud-upload" aria-hidden="true"></i> Restore
+                                    </a>
 
-
-                                </li>                             
-                            
+                                </li>
                                 <li class="nav-item col-3">
                                     <a class="nav-link font-weight-bold" href="#" id="refresh">
                                         <i class="fa fa-refresh" aria-hidden="true"></i> Refresh
@@ -78,29 +87,25 @@
                         <thead>
                             <tr>
                                 <th><input type="checkbox" id="selectedID1" /> </th>
-                                <th>Dealer Name</th>
-                                <th>Description</th>
-                                <th>SAPID</th>
-                                @*<th>Object ID</th>
-                                    <th>Group Type</th>*@
+                                <th>Product Family Name</th>
+                                <th>Product Family Description</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
                             {
                                 <tr>
-                                    <td style="width:5%">                                    
-                                        <input type="checkbox" name="selectedList" id="selectedGroup" value="@item.DealerId" data-memberid="@item.DealerId" />
+                                    <td style="width:5%">
+
+                                        <input type="checkbox" name="selectedList" id="selectedGroup" value="@item.ProductFamilyId" data-memberid="@item.ProductFamilyId" />
                                     </td>
                                     <td style="width:20%">
-                                        @Html.DisplayFor(modelItem => item.DealerName)
+                                        @Html.DisplayFor(modelItem => item.ProductFamilyName)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.DealerDescription)
+                                        @Html.DisplayFor(modelItem => item.ProductDescription)
                                     </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.SAPID)
-                                    </td>
+
 
                                 </tr>
                             }
@@ -115,20 +120,19 @@
 
     </form>
 </div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
 <script type="text/javascript">
 
-    $(document).ready(function () {
-        $('#selectedDealerRestore').on('click', function () {
-            var selectedDealerIds = [];
-            $("input[type='checkbox'][id^='selectedGroup']:checked").each(function () { selectedDealerIds.push($(this).data("memberid")); })
+        $(document).ready(function () {
+            $('#selectedPFRestore').on('click', function () {
+            var selectedPFIds = [];
+                $("input[type='checkbox'][id^='selectedGroup']:checked").each(function () { selectedPFIds.push($(this).data("memberid")); })
 
             $.ajax({
                 type: "POST",
-                url: '@Url.Action("RestoreDealer", "Dealer")',
+                url: '@Url.Action("RestoreProductFamily", "ProductFamily")',
                 contentType: 'application/json; charset=utf-8',
                 dataType: "json",
                 cache: false,
@@ -137,48 +141,50 @@
                         $('input:hidden[name="__RequestVerificationToken"]').val());
                 },
                 data: JSON.stringify({
-                    selectedProductFamily: selectedDealerIds
+                    selectedProductFamily: selectedPFIds
                 }),
                 success: function (response) {
-                   
+
                 },
                 failure: function (response) {
                     alert(response);
                 }
             })
         });
+
             $('#example').DataTable({
                 "language": {
                     "search": "",
-                    "searchPlaceholder": "Search Dealer Name",
+                    "searchPlaceholder": "Search product Family",
                 },
                 "bLengthChange": false,
                 "fixedHeader": {
                     "footer": false
                 },
                 //"dom": "<'#searchid'f>trip"
-            });         
+            });
+
+
             $('#refresh').on('click', function () {
                 window.location.reload();
             });
+
             unBlockUi();
-       
         });
 
-    function confirmDelete(isDelete) {
+        function confirmDelete(isDelete) {
 
-        $('#Controller').val('Dealer');
-        $('#Action').val('DeleteDealerPermanenttly');
+            $('#Controller').val('ProductFamily');
+            $('#Action').val('DeleteProductFamilyPermanenttly');
 
-        if (isDelete) {
-            $('#confirmDialog').show('fade');
-        } else {
-            $('#confirmDialog').hide();
-            unBlockUi();
+            if (isDelete) {
+                $('#confirmDialog').show('fade');
+            } else {
+                $('#confirmDialog').hide();
+                unBlockUi();
+            }
+
         }
-
-    }
-       
 
 
 </script>

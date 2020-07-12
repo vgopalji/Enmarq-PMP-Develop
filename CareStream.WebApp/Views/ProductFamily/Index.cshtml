@@ -53,10 +53,10 @@
                                         <span class="sr-only">(current)</span>
                                     </a>
                                 </li>
+                                <li class="nav-item active col-3">
+                                    <a class="nav-link pr-2" asp-controller="ProductFamily" asp-action="Upload"><i class="fa fa-cloud-upload pr-2" onclick="blockUi();"></i>Bulk Create</a>
+                                </li>
                                 <li class="nav-item col-3">
-                                    @*<a class="nav-link font-weight-bold" href="#" id="deletegroup">
-                                            <i class="fa fa-trash" aria-hidden="true"></i> Delete
-                                        </a>*@
 
                                     <button type="button" class="nav-link font-weight-bold" style="cursor:pointer" value="Delete" onclick="confirmDelete(true)">
                                         <i class="fa fa-trash" aria-hidden="true"></i> Delete
@@ -100,7 +100,8 @@
                                     <input type="checkbox" name="selectedList" id="selectedGroup" value="@item.ProductFamilyId" />
                                 </td>
                                 <td style="width:20%">
-                                    @Html.DisplayFor(modelItem => item.ProductFamilyName)
+                                    <a asp-controller="ProductFamily" asp-action="Details" asp-route-id="@item.ProductFamilyId" onclick="blockUi();">  @Html.DisplayFor(modelItem => item.ProductFamilyName)  </a>
+                                    @*@Html.DisplayFor(modelItem => item.ProductFamilyName)*@
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.ProductDescription)
@@ -161,7 +162,7 @@
     function confirmDelete(isDelete) {
 
         $('#Controller').val('ProductFamily');
-        $('#Action').val('GroupDelete');
+        $('#Action').val('ProductFamilyDelete');
 
         if (isDelete) {
             $('#confirmDialog').show('fade');

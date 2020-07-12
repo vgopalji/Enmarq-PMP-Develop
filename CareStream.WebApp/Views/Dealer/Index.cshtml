@@ -1,10 +1,4 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-
-
+﻿
 @model List<CareStream.Models.DealerModel>
 
 @{
@@ -13,8 +7,6 @@
 }
 
 <head>
-
-    </style>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -26,8 +18,6 @@
     <link href="~/style.css" rel="stylesheet" />
     <link href="~/css/offset-wizard.css" rel="stylesheet" />
     <link href="~/css/toastr.min.css" rel="stylesheet" />
-
-
     <!-- Fontawesome -->
     <script src="https://kit.fontawesome.com/e508532408.js" crossorigin="anonymous"></script>
 </head>
@@ -36,7 +26,6 @@
 
     <form>
         <div id="lstgroup">
-
             <div class="container no-gutter border-bottom mb-4">
                 <div class="row">
                     <nav class="navbar navbar-expand-lg navbar-light pt-0 pb-0">
@@ -92,9 +81,7 @@
                                 <th><input type="checkbox" id="selectedID1" /> </th>
                                 <th>Dealer Name</th>
                                 <th>Description</th>
-                                <th>SAPID</th>
-                                @*<th>Object ID</th>
-                                    <th>Group Type</th>*@
+                                <th>SAPID</th>                               
                             </tr>
                         </thead>
                         <tbody>
@@ -105,7 +92,6 @@
                                         <input type="checkbox" name="selectedList" id="selectedGroup" value="@item.DealerId" />
                                     </td>
                                     <td style="width:20%">
-                                        @*@Html.DisplayFor(modelItem => item.DealerName)*@
                                         <a asp-controller="Dealer" asp-action="Details" asp-route-id="@item.DealerId" onclick="blockUi();">  @Html.DisplayFor(modelItem => item.DealerName)  </a>
                                     </td>
                                     <td>
@@ -114,7 +100,6 @@
                                     <td>
                                         @Html.DisplayFor(modelItem => item.SAPID)
                                     </td>
-
                                 </tr>
                             }
 
@@ -143,22 +128,6 @@
             },
             //"dom": "<'#searchid'f>trip"
         });
-
-        //$(window).on("load", function () {
-        //    $("#searchid :input").addClass('empty');
-        //});
-
-        //$(document).on('keyup', '#searchid :input', function () {
-        //    var input = $("#searchid :input");
-        //    if (input.val().length === 0) {
-        //        input.removeClass('no-icon');
-        //        input.addClass('empty');
-
-        //    } else {
-        //        input.removeClass('empty');
-        //        input.addClass('no-icon')
-        //    }
-        //});
 
         $('#refresh').on('click', function () {
             window.location.reload();

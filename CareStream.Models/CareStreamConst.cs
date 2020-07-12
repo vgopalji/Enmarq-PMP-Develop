@@ -6,6 +6,8 @@
         public const string Member = "Member";
         public const string GroupMember = "Group_Member";
         public const string DealerProductFamily = "Dealer_ProductFammily";
+        public const string ProductFamilySelectedDealer = "DealerSelected_ProductFammily";
+        public const string ProductFamilyRestore = "Restore_ProductFammily";
         public const string GroupOwner = "Group_Owner";
         public const string UserSignInType_UserPrincipalName = "UserPrincipalName";
         public const string UserSignInType_EmailAddress = "EmailAddress";
@@ -73,6 +75,13 @@
         public const string Bulk_Dealer_Invite = "Invite";
         public const string Bulk_Dealer_Update = "Update";
         public const string Bulk_Dealer_Delete = "Delete";
+
+        //Bulk File Action ProductFamily
+        public const string Bulk_ProductFamily_Action = "Action";
+        public const string Bulk_ProductFamily_Create = "Create";
+        public const string Bulk_ProductFamily_Invite = "Invite";
+        public const string Bulk_ProductFamily_Update = "Update";
+        public const string Bulk_ProductFamily_Delete = "Delete";
 
         public const string Bulk_User_UploadedBy = "Admin";
 

@@ -23,24 +23,19 @@ namespace CareStream.Utility.DealerService
 {
     public interface IDealerService : ICosmosDbService<DealerModel>
     {
-
-        ////Task<List<DealerAssignModel>> BuildProductDealer();
-        //List<DealerModelCosmos> GetDealerDetails();
-        ////Task<List<DealerModelCosmos>> GetDealerDetailsCosmos();
-        ////Task<List<DealerModelVm>> GetDealerDetailsCosmos();
         Task RemoveDealer(List<string> dealerIdsToDelete);
         Task TempRemoveDealer(List<string> dealerIdsToDelete);
-        //Task<List<DealerModelVm>> GetAllDealerDetailsCosmos();
-        //Task<DealerAssignVm> BuildProductDealer();
         Task<DealerModel> GetDealerById(string Id);
-       
         Task<List<DeletedDealerModel>> GetDeletedDealers();
         Task RemoveDealerPermanently(List<string> dealerIdsToDelete);
         Task<bool> AddFileDetails(FileDetails fileDetails);
         Task<List<FileDetails>> GetFileDetails();
+        Task<List<DealerModel>> GetAllDealers();
+        Task<DealerModel> GetDealeryByName(string name);
+        Task<bool> RemoveDealerInRestoreById(string Id);
+        Task<DeletedDealerModel> GetDeletedDealersById(string Id);
     }
 
-    //public class ProductFamilyService : CosmosDBService<ProductFamilyModel>, IProductFamilyService
     public class DealerService : CosmosDBService<DealerModel>, IDealerService
     {
         private readonly ILoggerManager _logger;
@@ -52,199 +47,7 @@ namespace CareStream.Utility.DealerService
             _cosmosDbContext = cosmosDbContext;
 
         }
-
-        //    //public async Task<List<DealerModelVm>> GetDealerDetailsCosmos()
-        //    //{
-        //    //    var res = await _cosmosDbContext.dealerCosmos.ToListAsync();
-        //    //    return res;
-        //    //}
-
-
-        //    #region MVC Controller Helpers
-        //    //public async Task<List<DealerAssignModel>> BuildProductDealer()
-        //    //{
-        //    //    var dealerAssignModel = new List<DealerModelCosmos>();
-        //    //    try
-        //    //    {
-        //    //        _logger.LogInfo("ProductFamilyService-BuildProductDealer: [Started] to get detail list of product family to build dealer");
-        //    //        var dealers = GetAllDealerDetails();
-        //    //        if (dealers != null)
-        //    //        {
-        //    //            DealerModelCosmos dealerAssignModelLocal = new DealerModelCosmos();
-        //    //            foreach (var aDict in dealers.OrderBy(x => x.Value))
-        //    //            {
-        //    //                //  dealerAssignModelLocal..Add(aDict.Key, aDict.Value);
-        //    //            }
-        //    //            dealerAssignModel.Add(dealerAssignModelLocal);
-
-        //    //        }
-        //    //        _logger.LogInfo("ProductFamilyService-BuildProductDealer: [Completed] to getting detail list of user to build Dealer");
-
-        //    //    }
-        //    //    catch (ServiceException ex)
-        //    //    {
-        //    //        _logger.LogError("ProductFamilyService-BuildProductDealer: Exception occured....");
-        //    //        _logger.LogError(ex);
-        //    //    }
-        //    //    return dealerAssignModel;
-        //    //}
-
-
-
-        //    public List<DealerModelCosmos> GetDealerDetails()
-        //    {
-        //        try
-        //        {
-        //            List<DealerModelCosmos> dealerList = new List<DealerModelCosmos>();
-        //            int count = 0;
-        //            string jsonString = System.IO.File.ReadAllText("D:\\New folder\\CareStream.Utility\\App_Data\\Dealer.json");
-
-        //            using (JsonDocument document = JsonDocument.Parse(jsonString))
-        //            {
-        //                JsonElement root = document.RootElement;
-        //                JsonElement productFamilyElement = root.GetProperty("Dealers");
-
-        //                count = productFamilyElement.GetArrayLength();
-
-        //                foreach (JsonElement productFamily in productFamilyElement.EnumerateArray())
-        //                {
-        //                    if (productFamily.TryGetProperty("dealerId", out JsonElement dealerId) && productFamily.TryGetProperty("dealerName", out JsonElement dealerName) && productFamily.TryGetProperty("dealerDescription", out JsonElement dealerDescription) && productFamily.TryGetProperty("SAPID", out JsonElement SAPID))
-        //                    {
-        //                        DealerModelCosmos dealer = new DealerModelCosmos();
-        //                        //sum += gradeElement.GetDouble();
-        //                        dealer.DealerId = dealerId.GetString();
-        //                        dealer.DealerName = dealerName.GetString();
-        //                        dealer.DealerDescription = dealerDescription.GetString();
-        //                        dealer.SAPID = SAPID.GetString();
-        //                        dealerList.Add(dealer);
-        //                    }
-
-        //                    else
-        //                    {
-        //                        return null;
-        //                    }
-        //                }
-        //            }
-        //            if (dealerList == null)
-        //            {
-        //                return null;
-        //            }
-        //            return dealerList;
-        //        }
-        //        catch (ServiceException ex)
-        //        {
-        //            _logger.LogError("ProductFamily-GetDetailProductFamilyList: Exception occured....");
-        //            _logger.LogError(ex);
-        //            throw ex;
-        //        }
-
-        //    }
-
-        //    //public async Task<TEntity> CreateDealerAsync(List<DealerModelCosmos> entity)
-        //    //{
-
-        //    //    //entity.ProductFamilyId = Guid.NewGuid().ToString();
-        //    //    var response = _cosmosDbContext.dealerCosmos.Add(entity);
-        //    //    await ctx.SaveChangesAsync();
-        //    //    return response.Entity;
-
-        //    //}
-
-
-        //    #endregion
-
-        //    #region Private Methods
-        //    private Dictionary<string, string> GetAllDealerDetails()
-        //    {
-        //        Dictionary<string, string> dealerList = null;
-        //        try
-        //        {
-        //            dealerList = new Dictionary<string, string>();
-        //            int count = 0;
-        //            string jsonString = System.IO.File.ReadAllText("D:\\New folder\\CareStream.Utility\\App_Data\\Dealer.json");
-
-        //            using (JsonDocument document = JsonDocument.Parse(jsonString))
-        //            {
-        //                JsonElement root = document.RootElement;
-        //                JsonElement productFamilyElement = root.GetProperty("Dealers");
-
-        //                count = productFamilyElement.GetArrayLength();
-
-        //                foreach (JsonElement productFamily in productFamilyElement.EnumerateArray())
-        //                {
-        //                    if (productFamily.TryGetProperty("dealerId", out JsonElement dealerId) && productFamily.TryGetProperty("dealerName", out JsonElement dealerName) && productFamily.TryGetProperty("dealerDescription", out JsonElement dealerDescription) && productFamily.TryGetProperty("SAPID", out JsonElement SAPID))
-        //                    {
-        //                        DealerModel dealer = new DealerModel();
-        //                        //sum += gradeElement.GetDouble();
-        //                        dealer.DealerId = dealerId.GetString();
-        //                        dealer.DealerName = dealerName.GetString();
-        //                        dealer.DealerDescription = dealerDescription.GetString();
-        //                        dealer.SAPID = SAPID.GetString();
-        //                        dealerList.Add(Convert.ToString(dealer.DealerId), dealer.DealerName);
-
-        //                    }
-
-        //                    else
-        //                    {
-        //                        return null;
-        //                    }
-        //                }
-
-        //            }
-        //            if (dealerList == null)
-        //            {
-        //                return null;
-        //            }
-        //            return dealerList;
-        //        }
-        //        catch (ServiceException ex)
-        //        {
-        //            _logger.LogError("ProductFamily-GetDetailProductFamilyList: Exception occured....");
-        //            _logger.LogError(ex);
-        //            throw ex;
-        //        }
-
-        //    }
-        //    #endregion
-        //    public async Task<List<DealerModelVm>> GetAllDealerDetailsCosmos()
-        //    {
-
-        //        var res = await _cosmosDbContext.dealerCosmos.ToListAsync();
-        //        List<DealerModelVm> dmvm = new List<DealerModelVm>();
-        //        foreach (var items in res)
-        //        {
-        //            var res1 = GraphClientUtility.ConvertDealerToDealerVm(items, _logger);
-        //            dmvm.Add(res1);
-        //        }
-        //        return dmvm;
-
-        //    }
-
-        //    public async Task<DealerAssignVm> BuildProductDealer()
-        //    {
-        //        var dealerAssignModel = new DealerAssignVm();
-        //        var productFamilyList =await _cosmosDbContext.productFamilyCosmos.ToListAsync();
-        //        foreach(var res in productFamilyList)
-        //        {
-        //            dealerAssignModel.ProductFamilyDealer.Add(res);
-        //        }
-        //        return dealerAssignModel;
-        //    }
-
-        //    //private async Task<Dictionary<string, string>> GetNewGroupDefaultOwnerMember()
-        //    //{
-        //    //    Dictionary<string, string> retVal = null;
-        //    //    try
-        //    //    {
-        //    //        var productFamily = _cosmosDbContext.productFamilyCosmos.ToListAsync();
-        //    //        if (productFamily != null)
-        //    //        {
-        //    //            retVal = new Dictionary<string, string>();
-        //    //            retVal.Add(productFamily.key, productFamily.value);
-        //    //        }
-        //    //    }
-        //    //    catch { }
-        //    //}
+      
         public async Task RemoveDealer(List<string> dealerIdsToDelete)
         {
             try
@@ -365,12 +168,12 @@ namespace CareStream.Utility.DealerService
         {
             var dealersById = _cosmosDbContext.dealers.Where(d => d.DealerId == Id).SingleOrDefaultAsync();
             return dealersById;
-        }       
+        }
         public async Task<bool> AddFileDetails(FileDetails fileDetails)
         {
             try
             {
-               await _cosmosDbContext.fileDetails.AddAsync(fileDetails);
+                await _cosmosDbContext.fileDetails.AddAsync(fileDetails);
                 _cosmosDbContext.SaveChanges();
                 return true;
             }
@@ -383,12 +186,51 @@ namespace CareStream.Utility.DealerService
         }
         public Task<List<FileDetails>> GetFileDetails()
         {
-            return _cosmosDbContext.fileDetails.ToListAsync();
+            return _cosmosDbContext.fileDetails.Where(f=>f.FileName=="DealerCreateTemplate.csv").ToListAsync();
         }
         public Task<List<DeletedDealerModel>> GetDeletedDealers()
         {
             return _cosmosDbContext.deletedDealerModels.ToListAsync();
             //return deletedDelaers
+        }
+        public Task<DeletedDealerModel> GetDeletedDealersById(string Id)
+        {
+            return _cosmosDbContext.deletedDealerModels.Where(d => d.DealerId == Id).SingleOrDefaultAsync();
+        }
+        public Task<List<DealerModel>> GetAllDealers()
+        {
+            var dealers = _cosmosDbContext.dealers.ToListAsync();
+            return dealers;
+        }
+        public async Task<DealerModel> GetDealeryByName(string name)
+        {
+            var dealerList = await _cosmosDbContext.dealers.ToListAsync();
+            var dealer = dealerList.FirstOrDefault(p => p.DealerName.ToLower() == name.ToLower());
+            return dealer;
+        }
+       public async Task<bool> RemoveDealerInRestoreById(string Id)
+        {
+            try
+            {
+                if (Id == null)
+                {
+                    _logger.LogError("DealerService-RemoveDealer: Input value cannot be empty");
+                }
+
+                        _logger.LogInfo($"DealerService-RemoveDealer: [Started] removing Dealer for id [{Id}] on Azure Cosmos B2C");
+                        var deltedDealers = await _cosmosDbContext.deletedDealerModels.FindAsync(Id);
+                        var deletedResult = _cosmosDbContext.deletedDealerModels.Remove(deltedDealers);
+                        _cosmosDbContext.SaveChanges();
+                _logger.LogInfo($"DealerService-RemoveDealer: [Completed] Restore Dealer [{Id}] on Azure Cosmos B2C");
+                return true;
+                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DealerService-RemoveDealer: Exception occured....");
+                _logger.LogError(ex);
+                throw ex;
+            }
         }
     }
 

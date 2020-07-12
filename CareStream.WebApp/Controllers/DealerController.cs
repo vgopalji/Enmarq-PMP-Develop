@@ -52,9 +52,41 @@ namespace CareStream.WebApp.Controllers
 
         }
 
+        [ActionName("find")]
+        public async Task<IActionResult> Index(string id)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(id))
+                {
+
+                    var productFamilyDetails = await _productFamilyService.getProductFamilyById(id);
+                    var assignedPF = productFamilyDetails.assignedDealerModels.ToList();
+                    List<DealerModel> dealrList = new List<DealerModel>();
+                    foreach (var res in assignedPF)
+                    {
+                        var dealerDetails = await _dealerService.GetDealerById(res.DealerId);
+                        dealrList.Add(dealerDetails);
+                    }
+
+                    if (dealrList != null)
+                    {
+                        return View("Index", dealrList);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"DealerController-Index: Exception occurred .....");
+                _logger.LogError(ex);
+            }
+
+            return View(new DealerModel());
+        }
         public async Task<IActionResult> Create()
         {
             DealerModel dm = new DealerModel();
+            TempData.Clear();
             var productFamily = await _productFamilyService.getAllProductFamily();
             try
             {
@@ -87,19 +119,6 @@ namespace CareStream.WebApp.Controllers
 
         }
 
-        //public void AddSelectedDealers([FromBody] DealerAssignedModel dealerAssignedModel)
-        //{
-        //    if (dealerAssignedModel != null)
-        //    {
-        //        if (dealerAssignedModel.SelectedDealers != null)// && !string.IsNullOrEmpty(dealerAssignedModel.SelectedDealers[0].dea
-        //        {
-        //            TempData[CareStreamConst.Dealer] = dealerAssignedModel.SelectedDealers;
-
-        //        }
-
-        //    }
-        //}
-
         public async Task<IActionResult> Post([FromForm] DealerModel dealerModel)
         {
             try
@@ -127,14 +146,15 @@ namespace CareStream.WebApp.Controllers
                         var selectedProductFamily = TempData[CareStreamConst.DealerProductFamily] as string[];
                         if (selectedProductFamily != null)
                         {
-                            List<string> list = new List<string>(selectedProductFamily);
-                            foreach (var res in list)
+                            List<string> productFamilyList = new List<string>(selectedProductFamily);
+                            foreach (var productFamilyId in productFamilyList)
                             {
                                 AssignedProductFamilyModel apf = new AssignedProductFamilyModel();
+                                var productFamily = await _productFamilyService.getProductFamilyById(productFamilyId);
 
-                                apf.ProductFamilyId = res;
-                                apf.ProductFamilyName = "Test";
-                                apf.ProductDescription = "Test";
+                                apf.ProductFamilyId = productFamily.ProductFamilyId;
+                                apf.ProductFamilyName = productFamily.ProductFamilyName;
+                                apf.ProductDescription = productFamily.ProductDescription;
                                 apfl.Add(apf);
                             }
                             dealerModel.assignedProductFamilyModels = apfl;
@@ -237,29 +257,7 @@ namespace CareStream.WebApp.Controllers
             }
 
             return Ok();
-            //try
-            //{
-            //    if (selectedItems != null && selectedItems.Count != 0)
-            //    {
 
-            //        if (selectedItems.Any())
-            //        {
-            //            await _dealerService.RemoveDealer(selectedItems);
-            //            _toastNotification.AddSuccessToastMessage("Succssfully deleted the Dealer.");
-            //            return Ok(GetSuccessMessage("Succssfully deleted the Dealer."));
-            //        }
-            //    }
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    ShowErrorMessage("Dealer deletion failed: " + ex.Message);
-            //    _logger.LogError("DealerController-DealerDelete: Exception occurred...");
-            //    _logger.LogError(ex);
-            //    return RedirectToAction(nameof(Index));
-            //}
-
-            //return Ok();
         }
 
         [HttpPost]
@@ -273,7 +271,8 @@ namespace CareStream.WebApp.Controllers
                     if (selectedItems.Any())
                     {
                         await _dealerService.RemoveDealerPermanently(selectedItems);
-                        _toastNotification.AddSuccessToastMessage("Succssfully deleted the Dealer.");
+                        //_toastNotification.AddSuccessToastMessage("Succssfully deleted the Dealer.");
+                        ShowSuccessMessage("Succssfully deleted Dealer.");
                         return Ok(GetSuccessMessage("Succssfully deleted the Dealer."));
                     }
                 }
@@ -325,7 +324,7 @@ namespace CareStream.WebApp.Controllers
                             csv.Read();
                             csv.ReadHeader();
                             var resultsDealer = csv.GetRecords<BulkUpload>();
-                           List<AssignedProductFamilyModel> apfml = new List<AssignedProductFamilyModel>();
+                            List<AssignedProductFamilyModel> apfml = new List<AssignedProductFamilyModel>();
 
                             foreach (var res in resultsDealer)
                             {
@@ -337,13 +336,16 @@ namespace CareStream.WebApp.Controllers
                                     dmUpload.DealerDescription = res.DealerDescription;
                                     dmUpload.SAPID = res.SAPID;
                                     dmUpload.DealerId = Guid.NewGuid().ToString();
-                                    var productFamily=await _productFamilyService.GetProductFamilyByName(res.ProductFamilyName);
-                                    AssignedProductFamilyModel apfm = new AssignedProductFamilyModel();
-                                    apfm.ProductDescription = productFamily.ProductFamilyName;
-                                    apfm.ProductFamilyName = productFamily.ProductDescription;
-                                    apfm.ProductFamilyId = productFamily.ProductFamilyId;
-                                    apfml.Add(apfm);
-                                    dmUpload.assignedProductFamilyModels=apfml;
+                                    var productFamily = await _productFamilyService.GetProductFamilyByName(res.ProductFamilyName);
+                                    if (productFamily != null)
+                                    {
+                                        AssignedProductFamilyModel apfm = new AssignedProductFamilyModel();                                   
+                                        apfm.ProductDescription = productFamily.ProductFamilyName;
+                                        apfm.ProductFamilyName = productFamily.ProductDescription;
+                                        apfm.ProductFamilyId = productFamily.ProductFamilyId;
+                                        apfml.Add(apfm);
+                                    }
+                                    dmUpload.assignedProductFamilyModels = apfml;
                                     //blu.DealerName = res.DealerName;
                                     //blu.DealerDescription = res.DealerDescription;
                                     //blu.SAPID = res.SAPID;
@@ -370,7 +372,7 @@ namespace CareStream.WebApp.Controllers
 
                             if (fileDetails != null)
                             {
-                               await _dealerService.AddFileDetails(fileDetails);
+                                await _dealerService.AddFileDetails(fileDetails);
                             }
                             count++;
 
@@ -447,52 +449,52 @@ namespace CareStream.WebApp.Controllers
             {
                 if (csvReader != null)
                 {
-                   
-                            #region Create || Update User
 
-                            while (csvReader.Read())
+                    #region Create || Update User
+
+                    while (csvReader.Read())
+                    {
+                        BulkUpload bulkUser = new BulkUpload
+                        {
+
+                            //Status = CareStreamConst.Bulk_User_Loaded_Status,
+                            //CreatedDate = DateTime.UtcNow,
+                            //ModifiedDate = DateTime.UtcNow
+                        };
+
+                        foreach (string header in csvReader.Context.HeaderRecord)
+                        {
+                            try
                             {
-                                BulkUpload bulkUser = new BulkUpload
+                                switch (header.ToLower())
                                 {
-                                   
-                                    //Status = CareStreamConst.Bulk_User_Loaded_Status,
-                                    //CreatedDate = DateTime.UtcNow,
-                                    //ModifiedDate = DateTime.UtcNow
-                                };
-
-                                foreach (string header in csvReader.Context.HeaderRecord)
-                                {
-                                    try
-                                    {
-                                        switch (header.ToLower())
-                                        {
-                                            case "DealerName":
+                                    case "DealerName":
                                         bulkUser.DealerName = csvReader.GetField(header);
-                                                break;
-                                            case "DealerDescription":
-                                                bulkUser.DealerDescription = csvReader.GetField(header);
-                                                break;
-                                            case "SAPID":
-                                                bulkUser.SAPID = csvReader.GetField(header);
-                                                break;
-                                        }
+                                        break;
+                                    case "DealerDescription":
+                                        bulkUser.DealerDescription = csvReader.GetField(header);
+                                        break;
+                                    case "SAPID":
+                                        bulkUser.SAPID = csvReader.GetField(header);
+                                        break;
+                                }
 
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        _logger.LogError($"BulkUploadController-ProcessCSVAndCreateDbObject: Create || Update user error reading values for header- {header}");
-                                        _logger.LogError(ex);
-                                    }
-
-                                
-
-                                bulkUsers.Add(bulkUser);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError($"BulkUploadController-ProcessCSVAndCreateDbObject: Create || Update user error reading values for header- {header}");
+                                _logger.LogError(ex);
                             }
 
-                            #endregion
 
-                            break;
-                     
+
+                            bulkUsers.Add(bulkUser);
+                        }
+
+                        #endregion
+
+                        break;
+
                     }
                 }
             }
@@ -503,9 +505,9 @@ namespace CareStream.WebApp.Controllers
             }
             return bulkUsers;
         }
-        
+
         [ActionName("FileUploadResult")]
-       public async Task<ActionResult> FileUploadResult()
+        public async Task<ActionResult> FileUploadResult()
         {
             try
             {
@@ -565,8 +567,60 @@ namespace CareStream.WebApp.Controllers
             }
             return fileName;
         }
+        [HttpPost]
+        public async Task<ActionResult> RestoreDealer([FromBody] DeletedDealerModel deletedDealerModel)
+        {
+            try
+            {
+                //DealerModel dmcList = new DealerModel();
+                List<AssignedProductFamilyModel> apfList = new List<AssignedProductFamilyModel>();
+                //List<DealerModel> dmList = new List<DealerModel>();
+                if (deletedDealerModel.selectedProductFamily != null)
+                {
+                    List<string> dealerList = new List<string>(deletedDealerModel.selectedProductFamily);
+                    if (dealerList != null)
+                    {
+                        DealerModel dm = new DealerModel();
+                        foreach (var dealerId in dealerList)
+                        {
+                            var dealers = await _dealerService.GetDeletedDealersById(dealerId);
+
+                            dm.DealerId = dealers.DealerId;
+                            dm.DealerName = dealers.DealerName;
+                            dm.DealerDescription = dealers.DealerDescription;
+                            dm.SAPID = dealers.SAPID;
+                            foreach (var res in dealers.deletedDealerProductFamilyModels)
+                            {
+                                AssignedProductFamilyModel apm = new AssignedProductFamilyModel();
+                                apm.ProductFamilyId = res.ProductFamilyId;
+                                apm.ProductFamilyName = res.ProductFamilyName;
+                                apm.ProductDescription = res.ProductDescription;
+                                apfList.Add(apm);
+                                dm.assignedProductFamilyModels = apfList;
+                            }
+
+                            var newDealer = await _dealerService.CreateAsync(dm);
+                            await _dealerService.RemoveDealerInRestoreById(dm.DealerId);
+                        }
+                        ShowSuccessMessage("Succssfully Restored Dealer.");
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DealerController-Restore: Exception occurred...");
+                _logger.LogError(ex);
+                return RedirectToAction(nameof(Index));
+            }
+            return RedirectToAction(nameof(Index));
+        }
     }
+
+
 }
+
+
 
 
 

@@ -13,13 +13,13 @@ namespace CareStream.Utility
     public class CosmosDbContext : DbContext
     {
         public DbSet<ProductFamilyModel> productFamily { get; set; }
+        public DbSet<AssignedDealerModel> assignedDealerModels { get; set; }
         public DbSet<DealerModel> dealers { get; set; }
         public DbSet<AssignedProductFamilyModel> assignedProductFamilyModels { get; set; }
         public DbSet<DeletedDealerModel> deletedDealerModels { get; set; }
+        public DbSet<DeletedProductFamily> deletedProductFamilies { get; set; }
         public DbSet<DeletedDealerProductFamilyModel> deletedDealerProductFamilyModels { get; set; }
         public DbSet<FileDetails> fileDetails { get; set; }
-        //public DbSet<DealerDeleted> dealerDeleted { get; set; }
-
 
         public CosmosDbContext(DbContextOptions<CosmosDbContext> options) : base(options)
         {
@@ -30,16 +30,10 @@ namespace CareStream.Utility
         {
             // the container name
             modelBuilder.HasDefaultContainer("Dealers");
-            //modelBuilder.Entity<DealerModel>().HasKey(k => k.DealerId);
+            modelBuilder.Entity<ProductFamilyModel>().OwnsMany(p => p.assignedDealerModels);
             modelBuilder.Entity<DealerModel>().OwnsMany(x => x.assignedProductFamilyModels);
             modelBuilder.Entity<DeletedDealerModel>().OwnsMany(d => d.deletedDealerProductFamilyModels);
-
-            // ProfileMaster has many educations and Many Experiences
-            //modelBuilder.Entity<ProductFamilyCosmos>().HasKey(k => k.ProductFamilyId);
-            //modelBuilder.Entity<DealerModelCosmos>().HasKey(k => k.DealerId);
-            //modelBuilder.Entity<ProductFamilyCosmos>().HasMany(e => e.dealerModelCosmos);
-            //modelBuilder.Entity<DealerDeleted>().HasKey(k => k.DealerId);
-            //modelBuilder.Entity().OwnsMany(e => e.Experience);
+            modelBuilder.Entity<DeletedProductFamily>().OwnsMany(pf => pf.deletedProductFamilyDealerModels);
         }
     }
 }

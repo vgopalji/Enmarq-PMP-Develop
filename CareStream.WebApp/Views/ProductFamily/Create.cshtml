@@ -89,7 +89,7 @@
 
 <div id="dealerDiv">
     <div id="bs-canvas-right" class="bs-canvas bs-canvas-anim bs-canvas-right position-fixed h-100" style="padding-bottom:10px;">
-        <partial name="_Dealers" model="@Model" />
+        <partial name="_Dealers" model="@Model.dealerModel" />
         <a id="selectedDealer" style="cursor:pointer" class="bs-canvas-close btn btn-primary text-white ml-4" aria-label="Close">Select</a>
         <a id="selectedGroupOwnerClose" style="cursor:pointer" class="bs-canvas-close btn btn-primary text-white ml-4" aria-label="Close">Close</a>
     </div>
@@ -128,7 +128,7 @@
                 
                 $.ajax({
                     type: "POST",
-                    url: '@Url.Action("AddSelectedDealers", "ProductFamily")',
+                    url: '@Url.Action("AddSelectedDealer", "ProductFamily")',
                     contentType: 'application/json; charset=utf-8',
                     dataType: "json",
                     cache: false,
@@ -137,7 +137,7 @@
                             $('input:hidden[name="__RequestVerificationToken"]').val());
                     },
                     data: JSON.stringify({
-                        SelectedDealers: selectedDealerIds
+                        selectedDealer: selectedDealerIds
                     }),
                     success: function (response) {
                     },

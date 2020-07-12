@@ -1,5 +1,6 @@
 ﻿using CareStream.LoggerService;
 using CareStream.Models;
+using CareStream.Models.Dealer;
 using CareStream.Utility.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Cosmos;
@@ -27,6 +28,12 @@ namespace CareStream.Utility
         Task<List<ProductFamilyModel>> getAllProductFamily();
         Task<ProductFamilyModel> getProductFamilyById(string Id);
         Task<ProductFamilyModel> GetProductFamilyByName(string Name);
+        Task TempRemoveProductFamily(List<string> ProductFamilyIdsToDelete);
+        Task RemoveProductFamilyPermanently(List<string> productFamilysToDelete);
+        Task<List<DeletedProductFamily>> GetDeletedProductFamilies();
+        Task<List<FileDetails>> GetFileDetailsByFileName();
+        public Task<DeletedProductFamily> GetDeletedProductFamilyById(string Id);
+        Task<bool> RemovePFinRestoreById(string Id);
     }
 
     //public class ProductFamilyService : CosmosDBService<ProductFamilyModel>, IProductFamilyService
@@ -322,6 +329,123 @@ namespace CareStream.Utility
             var productFamilyByName =await  _cosmosDbContext.productFamily.ToListAsync();
             var selectedProductFamily = productFamilyByName.FirstOrDefault(p => p.ProductFamilyName.ToLower() == Name.ToLower());
             return selectedProductFamily;
+        }
+        public async Task TempRemoveProductFamily(List<string> ProductFamilyIdsToDelete)
+        {
+            try
+            {
+                if (ProductFamilyIdsToDelete == null)
+                {
+                    _logger.LogError("ProductFamilyService-RemoveProductFamily: Input value cannot be empty");
+                    return;
+                }
+
+                List<DeletedProductFamily> deletedProductFamilyModel = new List<DeletedProductFamily>();
+                foreach (var id in ProductFamilyIdsToDelete)
+                {
+                    //using (var _cosmosDbContextTransaction = _cosmosDbContext.Database.BeginTransaction())
+                    //{
+                    try
+                    {
+                        _logger.LogInfo($"DealerService-RemoveDealer: [Started] removing Dealer for id [{id}] on Azure AD B2C");
+                        var productFamily = await _cosmosDbContext.productFamily.FindAsync(id);
+                        if (productFamily != null)
+                        {
+                            var deletedPf = GraphClientUtility.ConvertProductFamillyToDeleteProductFamily(productFamily, _logger);
+                            await _cosmosDbContext.deletedProductFamilies.AddAsync(deletedPf); ;
+                            _cosmosDbContext.SaveChanges();
+                            var resultDelete = _cosmosDbContext.productFamily.Remove(productFamily);
+                            _cosmosDbContext.SaveChanges();
+                            //_cosmosDbContextTransaction.Commit();
+                            _logger.LogInfo($"ProductFamilyService-RemoveProducFamily: [Completed] removed ProductFamily [{id}] on Azure Cosmos B2C");
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"ProductFamilyService-RemoveProductFamily: Exception occured while removing ProductFamily for id [{id}]");
+                        _logger.LogError(ex);
+                    }
+                }
+                //}
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("ProductFamilyService-RemoveProductFamily: Exception occured....");
+                _logger.LogError(ex);
+                throw ex;
+            }
+        }
+        public async Task RemoveProductFamilyPermanently(List<string> productFamilysToDelete)
+        {
+            try
+            {
+                if (productFamilysToDelete == null)
+                {
+                    _logger.LogError("ProductFamilyService-RemoveProduct: Input value cannot be empty");
+                    return;
+                }
+
+                foreach (var id in productFamilysToDelete)
+                {
+                    try
+                    {
+                        _logger.LogInfo($"ProductFamilyService-RemoveProductFamily: [Started] removing Dealer for id [{id}] on Azure Cosmos DB B2C");
+                        var deletedPF = await _cosmosDbContext.deletedProductFamilies.FindAsync(id);
+                        var delteResult = _cosmosDbContext.deletedProductFamilies.Remove(deletedPF);
+                        _cosmosDbContext.SaveChanges();
+                        _logger.LogInfo($"ProductFamilyService-RemoveProductFamily: [Completed] removed ProductFamily [{id}] on Azure cosmos DB B2C");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"ProductFamilyService-RemoveProductFamily: Exception occured while removing ProductFamily for id [{id}]");
+                        _logger.LogError(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("ProductFamilyService-RemoveProductFamily: Exception occured....");
+                _logger.LogError(ex);
+                throw ex;
+            }
+        }
+        public Task<List<DeletedProductFamily>> GetDeletedProductFamilies()
+        {
+            return _cosmosDbContext.deletedProductFamilies.ToListAsync();
+            //return deletedDelaers
+        }
+        public Task<List<FileDetails>> GetFileDetailsByFileName()
+        {
+            return _cosmosDbContext.fileDetails.Where(f=>f.FileName== "ProductFamilyCreateTemplate.csv").ToListAsync();
+        }
+        public Task<DeletedProductFamily> GetDeletedProductFamilyById(string Id)
+        {
+            return _cosmosDbContext.deletedProductFamilies.Where(d => d.ProductFamilyId == Id).SingleOrDefaultAsync();
+        }
+        public async Task<bool> RemovePFinRestoreById(string Id)
+        {
+            try
+            {
+                if (Id == null)
+                {
+                    _logger.LogError("ProductFamilyService-RemoveProductFamily: Input value cannot be empty");
+                }
+
+                _logger.LogInfo($"ProductFamilyService-RemoveProductFamily: [Started] removing ProductFamily for id [{Id}] on Azure Cosmos B2C");
+                var deltedPF = await _cosmosDbContext.deletedProductFamilies.FindAsync(Id);
+                var deletedResult = _cosmosDbContext.deletedProductFamilies.Remove(deltedPF);
+                _cosmosDbContext.SaveChanges();
+                _logger.LogInfo($"ProductFamilyService-RemoveDealer: [Completed] Restore ProductFamily [{Id}] on Azure Cosmos B2C");
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("ProductFamilyService-RemoveProductFamily: Exception occured....");
+                _logger.LogError(ex);
+                throw ex;
+            }
         }
     }
 }

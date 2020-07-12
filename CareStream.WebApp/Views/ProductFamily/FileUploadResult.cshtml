@@ -1,4 +1,10 @@
-﻿
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
 @model List<CareStream.Models.Dealer.FileDetails>
 
 @{
@@ -8,7 +14,6 @@
 
 <head>
 
-    </style>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -20,17 +25,13 @@
     <link href="~/style.css" rel="stylesheet" />
     <link href="~/css/offset-wizard.css" rel="stylesheet" />
     <link href="~/css/toastr.min.css" rel="stylesheet" />
-
-
     <!-- Fontawesome -->
     <script src="https://kit.fontawesome.com/e508532408.js" crossorigin="anonymous"></script>
 </head>
 
 <div id="page-content-wrapper">
-
     <form>
         <div id="lstgroup">
-
             <div class="container no-gutter border-bottom mb-4">
                 <div class="row">
                     <nav class="navbar navbar-expand-lg navbar-light pt-0 pb-0">
@@ -41,17 +42,17 @@
                         </button>
                         <div class="collapse navbar-collapse" id="navbarNavDropdown">
                             <ul class="nav-tabs navbar-nav">
-                               
+
                                 <li class="nav-item col-12">
                                     <a class="nav-link font-weight-bold" href="#" id="refresh">
                                         <i class="fa fa-upload" aria-hidden="true"></i> Refresh
                                     </a>
                                 </li>
                                 @*<li class="nav-item col-5">
-                                    <a class="nav-link font-weight-bold" href="#" id="downloadgroups">
-                                        <i class="fa fa-download" aria-hidden="true"></i> Download
-                                    </a>
-                                </li>*@
+                                        <a class="nav-link font-weight-bold" href="#" id="downloadgroups">
+                                            <i class="fa fa-download" aria-hidden="true"></i> Download
+                                        </a>
+                                    </li>*@
                             </ul>
                         </div>
                     </nav>
@@ -63,7 +64,7 @@
                 <div class="row ">
                     <table id="example" class="table table-striped border" style="width:100%">
                         <thead>
-                            <tr>                               
+                            <tr>
                                 <th>File Name</th>
                                 <th>Uploaded Time</th>
                                 <th>Complete Time</th>
@@ -71,37 +72,37 @@
                                 <th>#Success</th>
                                 <th>#Failure</th>
                                 <th>Uploaded By</th>
-      
+
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
                             {
-                            <tr>                               
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.FileName)
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.FileName)
 
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.CreatedDate)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.CreatedDate)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Status)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Success)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Failure)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.UploadBy)
-                                </td>
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CreatedDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CreatedDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Status)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Success)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Failure)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.UploadBy)
+                                    </td>
 
-                            </tr>
+                                </tr>
                             }
 
                         </tbody>
@@ -127,10 +128,7 @@
             "fixedHeader": {
                 "footer": false
             },
-            //"dom": "<'#searchid'f>trip"
         });
-
-     
 
         $('#refresh').on('click', function () {
             window.location.reload();
@@ -138,7 +136,4 @@
 
         unBlockUi();
     });
-
-    
-
 </script>

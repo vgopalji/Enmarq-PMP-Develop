@@ -338,68 +338,125 @@ namespace CareStream.Utility
 
         public static DeletedDealerModel ConvertDealerToDeleteDealer(DealerModel dealerModel, ILoggerManager logger)
         {
-           
 
             //if (dealerModel != null)
             //{
-                DeletedDealerModel ddm = new DeletedDealerModel();
+            DeletedDealerModel ddm = new DeletedDealerModel();
 
-                ddm.DealerId = dealerModel.DealerId;
-                ddm.DealerName = dealerModel.DealerName;
-                ddm.DealerDescription = dealerModel.DealerDescription;
-                ddm.SAPID = dealerModel.SAPID;
-                ddm.deletedDealerProductFamilyModels = new List<DeletedDealerProductFamilyModel>();
+            ddm.DealerId = dealerModel.DealerId;
+            ddm.DealerName = dealerModel.DealerName;
+            ddm.DealerDescription = dealerModel.DealerDescription;
+            ddm.SAPID = dealerModel.SAPID;
+            ddm.deletedDealerProductFamilyModels = new List<DeletedDealerProductFamilyModel>();
 
-                try
+            try
+            {
+                foreach (var deltedPFM in dealerModel.assignedProductFamilyModels)
                 {
-                    foreach (var deltedPFM in dealerModel.assignedProductFamilyModels)
+                    if (deltedPFM.ProductFamilyId != null)
                     {
-                        if (deltedPFM.ProductFamilyId != null)
-                        {
-                            var parseBranch = ParseProductFamilyToDeltePF(deltedPFM,logger);
-                            ddm.deletedDealerProductFamilyModels.Add(parseBranch);
-                        }
+                        var parseBranch = ParseProductFamilyToDeltePF(deltedPFM, logger);
+                        ddm.deletedDealerProductFamilyModels.Add(parseBranch);
                     }
                 }
-                catch (Exception ex)
-                {
-                    logger.LogError("GraphClientUtility-ConvertGraphUserToUserModel: Exception occurred....");
-                    logger.LogError(ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("GraphClientUtility-ConvertGraphUserToUserModel: Exception occurred....");
+                logger.LogError(ex);
+            }
 
-                return ddm;
+            return ddm;
             //}
 
 
         }
-    
 
-
-public static DeletedDealerProductFamilyModel ParseProductFamilyToDeltePF(AssignedProductFamilyModel productFamilyModel, ILoggerManager logger)
-{
-            DeletedDealerProductFamilyModel ddpf = null;
-    try
-    {
-        if (productFamilyModel != null)
+        public static DeletedProductFamily ConvertProductFamillyToDeleteProductFamily(ProductFamilyModel productFamilyModel, ILoggerManager logger)
         {
-                    ddpf = new DeletedDealerProductFamilyModel
-            {
-                ProductFamilyId = productFamilyModel.ProductFamilyId,
-                ProductFamilyName = productFamilyModel.ProductFamilyName,
-                ProductDescription = productFamilyModel.ProductDescription              
 
-            };
+            //if (dealerModel != null)
+            //{
+            DeletedProductFamily dpf = new DeletedProductFamily();
+
+            dpf.ProductFamilyId = productFamilyModel.ProductFamilyId;
+            dpf.ProductFamilyName = productFamilyModel.ProductFamilyName;
+            dpf.ProductDescription = productFamilyModel.ProductDescription;
+            dpf.deletedProductFamilyDealerModels = new List<DeletedProductFamilyDealerModel>();
+
+            try
+            {
+                foreach (var deleteDealer in productFamilyModel.assignedDealerModels)
+                {
+                    if (deleteDealer.DealerId != null)
+                    {
+                        var parseBranch = ParseDealerToDelteDealer(deleteDealer, logger);
+                        dpf.deletedProductFamilyDealerModels.Add(parseBranch);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("GraphClientUtility-ConvertProductFamilyToDeteletPF: Exception occurred....");
+                logger.LogError(ex);
+            }
+
+            return dpf;
+            //}
+
 
         }
+        public static DeletedProductFamilyDealerModel ParseDealerToDelteDealer(AssignedDealerModel assignedDealerModel, ILoggerManager logger)
+        {
+            DeletedProductFamilyDealerModel dpfm = null;
+            try
+            {
+                if (assignedDealerModel != null)
+                {
+                    dpfm = new DeletedProductFamilyDealerModel
+                    {
+                        DealerId = assignedDealerModel.DealerId,
+                        DealerName = assignedDealerModel.DealerName,
+                        DealerDescription = assignedDealerModel.DealerDescription,
+                        SAPID= assignedDealerModel.SAPID
+                    };
 
-    }
-    catch (Exception ex)
-    {
-        logger.LogError("GraphClientUtility-ConvertGraphUserToUserModel: Exception occurred....");
-        logger.LogError(ex);
-    }
-    return ddpf;
-}
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("GraphClientUtility-ConvertGraphUserToUserModel: Exception occurred....");
+                logger.LogError(ex);
+            }
+            return dpfm;
+        }
+
+        public static DeletedDealerProductFamilyModel ParseProductFamilyToDeltePF(AssignedProductFamilyModel productFamilyModel, ILoggerManager logger)
+        {
+            DeletedDealerProductFamilyModel ddpf = null;
+            try
+            {
+                if (productFamilyModel != null)
+                {
+                    ddpf = new DeletedDealerProductFamilyModel
+                    {
+                        ProductFamilyId = productFamilyModel.ProductFamilyId,
+                        ProductFamilyName = productFamilyModel.ProductFamilyName,
+                        ProductDescription = productFamilyModel.ProductDescription
+
+                    };
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("GraphClientUtility-ConvertGraphUserToUserModel: Exception occurred....");
+                logger.LogError(ex);
+            }
+            return ddpf;
+        }
 
         //public static DealerModelVm ConvertDealerToDealerVm(DealerModelCosmos dealerModel, ILoggerManager logger)
         //{

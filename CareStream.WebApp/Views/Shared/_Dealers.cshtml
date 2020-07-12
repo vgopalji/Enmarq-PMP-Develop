@@ -1,4 +1,4 @@
-﻿@*@model CareStream.Models.ProductFamilyViewModel
+﻿@model List<CareStream.Models.DealerModel>
 
 <header class="bs-canvas-header p-3 text-white overflow-auto">
     <h4 class="d-inline-block text-dark mb-0 float-left">Add Dealer</h4>
@@ -15,11 +15,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.DealerModelCosmos)
+                    @foreach (var item in Model)
                     {
                         <tr>
                             <td style="width:13px !important">
-                                <input type="checkbox" name="chkbox_Dealer-@item.DealerId" id="chkbox_Dealer-@item.DealerId" data-memberid="@item.DealerName" />
+                                <input type="checkbox" name="chkbox_Dealer-@item.DealerId" id="chkbox_Dealer-@item.DealerId" data-memberid="@item.DealerId" />
                             </td>
                             <td>
                                 <label style="text-wrap:normal">@item.DealerName</label>
@@ -33,6 +33,6 @@
         </div>
     </div>
 
-</div>*@
+</div>
 
 
